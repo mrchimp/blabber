@@ -1,0 +1,9 @@
+{
+     "name": "ChimpChat",
+     "description": "Simple chat application",
+     "version": "0.0.1",
+     "dependencies": {
+        "express": "",
+        "socket.io": ""
+     }
+}
