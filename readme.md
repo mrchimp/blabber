@@ -4,8 +4,8 @@ blabber
 Web chat system with node and web sockets.
 
 
-Install
--------
+Install a Server
+----------------
 
 Install Node.js - http://nodejs.org/
 
@@ -18,13 +18,13 @@ Get dependencies by typing:
 Marvelous.
  
  
-Run Server
-----------
+Run a Server
+------------
 
     node babble.js
     
-Connect Client
---------------
+Connect a Client
+----------------
 
 Point a web browser at
 
