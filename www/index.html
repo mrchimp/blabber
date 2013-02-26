@@ -1,53 +1,59 @@
 <!doctype html>
 <html>
 <head>
-    <title>Blabber</title>
-    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
-    <script type="text/javascript" src="socket.io/socket.io.js"></script>
-    <script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="js/chat.js"></script>
-    <link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.min.css">
-    <link rel="stylesheet" type="text/css" href="css/style.css">
+<title>Blabber</title>
+<link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.css">
+<link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
 <body>
-    <div class="navbar navbar-inverse navbar-fixed-top">
-        <div class="navbar-inner">
-            <a class="brand" href="#">Blabber</a>
-            <ul class="nav">
-                <li><a href="#connect" id="connect" class="red-text">Connect</a></li>
-                <li><a href="#settings" role="button" data-toggle="modal">Settings</a></li>
+<div class="navbar navbar-inverse navbar-fixed-top">
+    <div class="navbar-inner">
+        <a class="brand" href="#">Blabber</a>
+        <div class="nav-collapse collapse">
+            <ul class="nav nav-pills">
+                <li><a href="#connect" id="connect" class="disconnected"><span class="icon-off icon-white"></span></a></li>
+                <li><a href="#settings" role="button" data-toggle="modal"><span class="icon-cog icon-white"></span></a></li>
+                <li class="dropdown">
+                    <a href="#userlist" id="toggle_userlist" class="dropdown-toggle" data-toggle="dropdown"><span class="icon-user icon-white"></span> <span class="caret"></span></a>
+                    <ul id="users" class="dropdown-menu" role="menu" aria-labelledby="toggle_userlist">
+                        <li><a href="#">Disconnected!</a></li>
+                    </ul>
+                </li>
             </ul>
         </div>
     </div>
-    
-    <div id="user_list">
-        <h4>Users</h4>
-        <ul id="users"></ul>
-    </div>
-    
-    <div id="chat_log">
+</div>
+
+<div class="container-fluid fill">
+    <div class="row-fluid">
         <div id="conversation"></div>
         <input type="text" id="msg_input" placeholder="Type here. Press ENTER to send." />
     </div>
-    
-    <div class="modal hide fade" id="settings">
-        <div class="modal-header">
-            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-            <h3>Settings</h3>
-        </div>
-        <div class="modal-body">
-            <form class="form-horizontal">
-                <div class="control-group">
-                    <label class="control-label" for="sound_enabled">Enable Sound</label>
-                    <div class="controls">
-                        <input type="checkbox" id="sound_enabled" checked>
-                    </div>
-                </div>
-            </form>
-        </div>
-        <div class="modal-footer">
-            <a href="#" class="btn btn-primary" data-dismiss="modal" aria-hidden="true">Close</a>
-        </div>
+</div>
+
+<div class="modal hide fade" id="settings">
+    <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3>Settings</h3>
     </div>
+    <div class="modal-body">
+        <form class="form-horizontal">
+            <div class="control-group">
+                <label class="control-label" for="sound_enabled">Enable Sound</label>
+                <div class="controls">
+                    <input type="checkbox" id="sound_enabled" checked>
+                </div>
+            </div>
+        </form>
+    </div>
+    <div class="modal-footer">
+        <a href="#" class="btn btn-primary" data-dismiss="modal" aria-hidden="true">Close</a>
+    </div>
+</div>
+
+<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+<script type="text/javascript" src="socket.io/socket.io.js"></script>
+<script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/chat.js"></script>
 </body>
 </html>

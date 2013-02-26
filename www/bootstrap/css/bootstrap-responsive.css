@@ -800,10 +800,10 @@
 }
 
 @media (max-width: 767px) {
-  body {
+  /*body {
     padding-right: 20px;
     padding-left: 20px;
-  }
+  }*/
   .navbar-fixed-top,
   .navbar-fixed-bottom,
   .navbar-static-top {
@@ -955,11 +955,12 @@
   }
   .navbar-fixed-top,
   .navbar-fixed-bottom {
-    position: static;
+    /*position: static;*/
+    position: fixed;
   }
-  .navbar-fixed-top {
+  /*.navbar-fixed-top {
     margin-bottom: 20px;
-  }
+  }*/
   .navbar-fixed-bottom {
     margin-top: 20px;
   }

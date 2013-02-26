@@ -57,8 +57,6 @@ Blabber.prototype.connect = function () {
             t.alert_timeout = window.setTimeout(this.resetTitle, 3000);
 
             // play a sound
-            console.log('sound?');
-            console.log($('#sound_enabled').is(':checked'));
             if (t.audioTagSupport && $('#sound_enabled').is(':checked')) {
                 t.$new_msg_sound.get(0).play();
             }
@@ -72,27 +70,24 @@ Blabber.prototype.connect = function () {
         // call the server-side function 'adduser' and send one parameter (value of prompt)
         t.socket.emit('adduser', t.current_username);
         $('#conversation').html('');
-        $('#connect').removeClass('red-text');
-        $('#connect').addClass('green-text');
+        $('#connect').removeClass('disconnected').addClass('connected');
     });
 
     // listener, whenever the server emits 'updateusers', this updates the username list
     this.socket.on('updateusers', function (data) {
         $('#users').empty();
         $.each(data, function (key, value) {
-            $('#users').append('<li>' + key + '</li>');
+            $('#users').append('<li><a href="#">' + key + '</a></li>');
         });
     });
     
     this.socket.on('disconnect', function () {
         this.disconnected = true;
-        $('#connect').removeClass('green-text');
-        $('#connect').addClass('red-text');
+        $('#connect').removeClass('connected').addClass('disconnected');
     });
 };
 
 Blabber.prototype.disconnect = function () {
-    //this.socket.disconnect();
     this.socket.emit('disconnect', 'Goodbye!');
     console.log('disconnected');
 };
@@ -112,7 +107,7 @@ Blabber.prototype.appendMessage = function (username, message) {
                  + zeroPad(currentdate.getSeconds(), 2);
 
     $('#conversation').append('<span title="Message sent ' + datetime + '"><b>' + username + ':</b> ' + message + '</span><br>');
-    $('#conversation').scrollTop($("#conversation")[0].scrollHeight);
+    $('body').scrollTop($("body")[0].scrollHeight);
 };
 
 Blabber.prototype.sendMessage = function (message) {
