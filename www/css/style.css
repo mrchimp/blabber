@@ -1,103 +1,17 @@
 /* Mmm-mmm */
 
-@font-face {
-  font-family: 'SourceCodeProExtraLight';
-  src: url('sourcecode/SourceCodePro-ExtraLight-webfont.eot');
-  src: url('sourcecode/SourceCodePro-ExtraLight-webfont.eot?#iefix') format('embedded-opentype'),
-       url('sourcecode/SourceCodePro-ExtraLight-webfont.woff') format('woff'),
-       url('sourcecode/SourceCodePro-ExtraLight-webfont.ttf') format('truetype'),
-       url('sourcecode/SourceCodePro-ExtraLight-webfont.svg#SourceCodeProExtraLight') format('svg');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'SourceCodeProLight';
-  src: url('sourcecode/SourceCodePro-Light-webfont.eot');
-  src: url('sourcecode/SourceCodePro-Light-webfont.eot?#iefix') format('embedded-opentype'),
-       url('sourcecode/SourceCodePro-Light-webfont.woff') format('woff'),
-       url('sourcecode/SourceCodePro-Light-webfont.ttf') format('truetype'),
-       url('sourcecode/SourceCodePro-Light-webfont.svg#SourceCodeProLight') format('svg');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'SourceCodeProRegular';
-  src: url('sourcecode/SourceCodePro-Regular-webfont.eot');
-  src: url('sourcecode/SourceCodePro-Regular-webfont.eot?#iefix') format('embedded-opentype'),
-       url('sourcecode/SourceCodePro-Regular-webfont.woff') format('woff'),
-       url('sourcecode/SourceCodePro-Regular-webfont.ttf') format('truetype'),
-       url('sourcecode/SourceCodePro-Regular-webfont.svg#SourceCodeProRegular') format('svg');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'SourceCodeProSemibold';
-  src: url('sourcecode/SourceCodePro-Semibold-webfont.eot');
-  src: url('sourcecode/SourceCodePro-Semibold-webfont.eot?#iefix') format('embedded-opentype'),
-       url('sourcecode/SourceCodePro-Semibold-webfont.woff') format('woff'),
-       url('sourcecode/SourceCodePro-Semibold-webfont.ttf') format('truetype'),
-       url('sourcecode/SourceCodePro-Semibold-webfont.svg#SourceCodeProSemibold') format('svg');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'SourceCodeProBold';
-  src: url('sourcecode/SourceCodePro-Bold-webfont.eot');
-  src: url('sourcecode/SourceCodePro-Bold-webfont.eot?#iefix') format('embedded-opentype'),
-       url('sourcecode/SourceCodePro-Bold-webfont.woff') format('woff'),
-       url('sourcecode/SourceCodePro-Bold-webfont.ttf') format('truetype'),
-       url('sourcecode/SourceCodePro-Bold-webfont.svg#SourceCodeProBold') format('svg');
-  font-weight: normal;
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'SourceCodeProBlack';
-  src: url('sourcecode/SourceCodePro-Black-webfont.eot');
-  src: url('sourcecode/SourceCodePro-Black-webfont.eot?#iefix') format('embedded-opentype'),
-       url('sourcecode/SourceCodePro-Black-webfont.woff') format('woff'),
-       url('sourcecode/SourceCodePro-Black-webfont.ttf') format('truetype'),
-       url('sourcecode/SourceCodePro-Black-webfont.svg#SourceCodeProBlack') format('svg');
-  font-weight: normal;
-  font-style: normal;
-}
-
-
 html, body {
     height: 100%;
 }
 
 body {
-    background-color: #030303;
-    background-image: url('images/dvsup.png');
-    color: #ccc;
-    padding: 0;
-    margin: 0;
-}
-
-body.sidebar {
-    padding-right: 20%;
+    padding-top: 45px;
 }
 
 * {
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
-    font-size: 16px;
-    font-family: 'SourceCodeProRegular',Menlo,Consolas,Monaco,monospace;
-    line-height: 21px;
-}
-
-#interface {
-    padding: 2px;
-}
-
-#nav {
-    padding: 10px 2px 0 2px;
 }
 
 .fill{
@@ -114,17 +28,6 @@ body.sidebar {
     top: 0;
     width: inherit;
     z-index: -1;  
-}
-
-a {
-    color: #080;
-}
-
-.prompt {
-    color: #080;
-    font-weight: bold;
-    text-shadow: 0 0 113px rgba(0,255,0,0.4);
-    width: 80%;
 }
 
 .navbar-inner {
@@ -152,13 +55,10 @@ a {
     margin-bottom: 10px;
 }
 
-#msg_in {
-    width: 88%;
-    border: 0;
-    margin: 0;
-    background: transparent;
-    color: #ccc;
-    outline: none;
+#msg_input {
+    height: 29px;
+    width: 100%;
+    margin: 0 0 15px 0;
 }
 
 #msg_send {
@@ -167,26 +67,4 @@ a {
     margin: 0;
     padding: 0;
     float: right;
-}
-
-#userlist {
-    display: none;
-    position: absolute;
-    right: 0;
-    background-color: rgba(255, 255, 255, 0.05);
-    height: 100%;
-}
-
-ul#users {
-    list-style-type: none;
-    padding: 3px;
-    margin: 0;
-}
-
-.username {
-    font-weight: bold;
-}
-
-.username.me {
-    color: #080;
 }
