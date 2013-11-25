@@ -25,17 +25,17 @@ var Blabber = function () {
 
     if (this.canPlayMp3) {
         this.$new_msg_sound = $('<audio />')
-                            .attr({
-                                'id': 'new_msg_sound',
-                                'src': 'audio/alert.mp3'
-                            });
+        .attr({
+            'id': 'new_msg_sound',
+            'src': 'audio/alert.mp3'
+        });
         $.get();
     } else if (this.canPlayOgg) {
         this.$new_msg_sound = $('<audio />')
-                            .attr({
-                                'id': 'new_msg_sound',
-                                'src': 'audio/alert.ogg'
-                            });
+        .attr({
+            'id': 'new_msg_sound',
+            'src': 'audio/alert.ogg'
+        });
         $.get();
     }
 };
@@ -110,16 +110,14 @@ Blabber.prototype.sendMessage = function (message) {
         return false;
     }
 
-    // tell server to execute 'sendchat' and send along one parameter
     this.socket.emit('sendchat', message);
 };
 
 $(document).ready(function () {
     var blab = new Blabber();
 
-    // when the client hits ENTER on their keyboard
     $('#msg_input').keypress(function (e) {
-        if (e.which === 13) {
+        if (e.which === 13) { // Enter
             blab.sendMessage($('#msg_input').val());
             $('#msg_input').val('');
         }
