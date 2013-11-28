@@ -5,7 +5,8 @@ html, body {
 }
 
 body {
-    padding-top: 60px;
+    padding-top: 90px;
+    line-height: 135%;
 }
 
 * {
@@ -16,7 +17,7 @@ body {
 
 .fill{
     min-height: 100%;
-    position: relative;    
+    position: relative;
 }
 
 .filler:after{
@@ -28,10 +29,6 @@ body {
     top: 0;
     width: inherit;
     z-index: -1;  
-}
-
-.navbar-inner {
-    padding-left: 20px !important;
 }
 
 .disconnected {
@@ -52,13 +49,14 @@ body {
 #conversation {
     max-height: 100%;
     overflow-y: auto;
-    margin-bottom: 10px;
+    margin: 10px;
 }
 
 #msg_input {
     height: 29px;
     width: 100%;
     margin: 0 0 15px 0;
+    display: none;
 }
 
 #msg_send {
@@ -67,4 +65,20 @@ body {
     margin: 0;
     padding: 0;
     float: right;
+}
+
+#start {
+    width: 200px;
+    font-size: 24px;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+}
+
+#welcome .start,
+#welcome .username {
+    width: 100%;
+}
+#welcome .username {
+    margin-bottom: 10px;
 }

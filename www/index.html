@@ -8,12 +8,16 @@
 <body>
 <nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
     <div class="navbar-header">
+        <a class="btn btn-primary navbar-toggle" data-toggle="collapse" data-target="#main-menu"><i class="glyphicon glyphicon-chevron-down"></i></a>
         <a class="navbar-brand" href="#">Blabber</a>
+    </div>
+
+    <div class="collapse navbar-collapse pull-right" id="main-menu">
         <ul class="nav navbar-nav">
-            <li><a href="#connect" id="connect" class="disconnected"><i class="glyphicon glyphicon-off icon-white"></i></a></li>
-            <li><a href="#settings" role="button" data-toggle="modal"><i class="glyphicon glyphicon-cog icon-white"></i></a></li>
+            <li><a href="#connect" class="connect disconnected"><i class="glyphicon glyphicon-off icon-white"></i> Connect</a></li>
+            <li><a href="#settings" role="button" data-toggle="modal"><i class="glyphicon glyphicon-cog icon-white"></i> Settings</a></li>
             <li class="dropdown">
-                <a href="#userlist" id="toggle_userlist" class="dropdown-toggle" data-toggle="dropdown"><i class="glyphicon glyphicon-user icon-white"></i> <span class="caret"></span></a>
+                <a href="#userlist" id="toggle_userlist" class="dropdown-toggle" data-toggle="dropdown"><i class="glyphicon glyphicon-user icon-white"></i> Users <span class="caret"></span></a>
                 <ul id="users" class="dropdown-menu" role="menu" aria-labelledby="toggle_userlist">
                     <li><a href="#">Disconnected!</a></li>
                 </ul>
@@ -22,10 +26,16 @@
     </div>
 </nav>
 
-<div class="container-fluid fill">
+<div class="container fill">
     <div class="row-fluid">
-        <div id="conversation">Click the power button to begin.<br></div>
-        <input type="text" id="msg_input" placeholder="Type here. Press ENTER to send." />
+        <div id="welcome" class="col-md-3 col-md-offset-4">
+            <form>
+                <input class="username form-control" type="text" placeholder="What is your name?">
+                <input type="submit" class="start btn btn-lg btn-primary" value="Start chat">
+            </form>
+        </div>
+        <div id="conversation"></div>
+        <input class="form-control" type="text" id="msg_input" placeholder="Type here. Press ENTER to send.">
     </div>
 </div>
 
@@ -56,6 +66,7 @@
 <script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
 <script type="text/javascript" src="socket.io/socket.io.js"></script>
 <script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="js/blabber.js"></script>
 <script type="text/javascript" src="js/chat.js"></script>
 </body>
 </html>
