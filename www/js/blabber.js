@@ -3,28 +3,35 @@
  *
  * http://github.com/mrchimp/blabber
  */
-var Blabber = (function (overide_options) {
+
+/**
+ * This is the main interface.
+ */
+var BlabberClient = (function (override_options) {
 
     var options = {
-        onConnectCallback: function () {},
-        onDisconnectCallback: function () {},
-        onMessageCallback: function () {},
+        server: 'http://' + window.location.hostname,
+        port:   80,
         selectors: {
             users_list: '#users',
             connect_btn: '.connect',
             conversation: '#conversation',
             use_sound: '#options .sound_enabled',
-        }
-    };
+        },
+        onConnect: function (username) {},
+        onDisconnect: function () {},
+        onMessage: function (username, message) {},
+        onUpdateUsers: function (userlist) {},
+    },
+    socket,
+    alert_timeout,
+    window_title = document.title,
+    $new_msg_sound = document.createElement('audio'),
+    audioTagSupport = !!($new_msg_sound.canPlayType);
 
-    $.extend(options, overide_options);
+    $.extend(options, override_options);
 
-    var socket,
-        alert_timeout,
-        connected       = false,
-        window_title    = document.title,
-        $new_msg_sound  = document.createElement('audio'),
-        audioTagSupport = !!($new_msg_sound.canPlayType);
+    socket = new BlabberSocket(options.server + ':' + options.port.toString());
 
     if (audioTagSupport) {
         canPlayMp3 = !!$new_msg_sound.canPlayType && "" !== $new_msg_sound.canPlayType('audio/mpeg');
@@ -48,12 +55,114 @@ var Blabber = (function (overide_options) {
         $.get();
     }
 
+    socket.onConnect = function (username) {
+        // $(options.selectors.conversation).html('');
+        $(options.selectors.connect_btn).removeClass('disconnected').addClass('connected');
+        options.onConnect(username);
+    }
+
+    socket.onUpdateUsers = function (userlist) {
+        $(options.selectors.users_list).empty();
+        $.each(userlist, function (username, value) {
+            $(options.selectors.users_list).append('<li><a href="#">' + username + '</a></li>');
+        });
+    }
+
+    socket.onMessage = function (username, message) {
+        if (username !== 'SERVER' && username !== socket.username) {
+            showAlert(username + ' said something.');
+            makeNoise();
+        }
+        appendMessage(username, message);
+    }
+
+    socket.onDisconnect = function () {
+        appendMessage('SERVER', 'Disconnected');
+        options.onDisconnect();
+    }
+
+    /**
+     * If disconnected then connect...
+     */
+    function toggleConnect(username) {
+        if (socket.isConnected()) {
+            console.log('DEBUG: toggle disconnecting');
+            socket.disconnect();
+        } else {
+            console.log('DEBUG: toggle connecting');
+            if (!username || typeof username !== 'string') {
+                username = prompt('What is your name?');   
+            }
+            if (!username || typeof username !== 'string') {
+                appendMessage('ERROR', 'You need to provide a username.');
+                return false;
+            }
+            connect(username);
+        }
+    }
+
     function zeroPad (str, len) {
         str = str.toString();
         while (str.length < len) {
             str = '0' + str;
         }
         return str;
+    }
+
+    /**
+     * Write a message to the screen
+     */
+    function appendMessage (username, message) {
+        var currentdate = new Date(),
+            datetime = currentdate.getFullYear() + "/"
+                     + zeroPad(currentdate.getMonth() + 1, 2) + "/"
+                     + zeroPad(currentdate.getDate(), 2) + " "
+                     + zeroPad(currentdate.getHours(), 2) + ":"
+                     + zeroPad(currentdate.getMinutes(), 2) + ":"
+                     + zeroPad(currentdate.getSeconds(), 2);
+
+        $('<p />')
+            .attr('title', 'Message sent ' + datetime)
+            .html('<b>' + username + ':</b> ' + message)
+            .appendTo(options.selectors.conversation);
+        $('body').scrollTop($('body')[0].scrollHeight);
+    };
+
+    /**
+     * Send a message to the server
+     */
+    function sendMessage (message) {
+        try {
+            return socket.sendMessage(message);
+        } catch (err) {
+            appendMessage('ERROR', err.message + '<br>');
+        }
+    }
+
+    /**
+     * Connect to the server
+     * @return {boolean} True if successfully connected
+     */
+    function connect(username) {
+        appendMessage('CONNECTING', 'Please be patient...<br>');
+
+        try {
+            socket.connect(username);
+        } catch (err) {
+            appendMessage('ERROR', 'Could not connect: ' + err);
+        }
+    }
+
+    /**
+     * Disconnect from server
+     * @param  {string} msg
+     * @return {boolean}
+     */
+    function disconnect(msg) {
+        if (!msg) {
+            msg = 'Goodbye!'
+        }
+        socket.disconnect(msg);
     }
 
     /**
@@ -64,11 +173,11 @@ var Blabber = (function (overide_options) {
         document.title = message;
         alert_timeout = window.setTimeout(function () {
             clearTimeout(this.alert_timeout);
-            document.title = self.window_title;
+            document.title = window_title;
         }, 3000);
     }
 
-    /**
+    /** 
      * If we're allowed & able, make a sound.
      */
     function makeNoise() {
@@ -77,89 +186,83 @@ var Blabber = (function (overide_options) {
         }
     }
 
+    return {
+        connect: connect,
+        disconnect: disconnect,
+        toggleConnect: toggleConnect,
+        appendMessage: appendMessage,
+        sendMessage: sendMessage,
+    };
+});
+
+
+var BlabberSocket = (function (server_url) {
+
+    var error,
+        socket,
+        username,
+        onUpdateUsers = function(userlist){}, // Hook for client
+        onMessage     = function(username, message){}, // Hook for client
+        onConnect     = function(){}, // Hook for client
+        onDisconnect  = function(){}; // Hook for client
+
+    /**
+     * Fairly intelligent
+     */
+    function isConnected () {
+        if (!socket) { return false }
+        return socket.socket.connected;
+    }
+
     /**
      * Connect to the server
      */
-    function connect (provided_username) {
-        var blab = this;
-        
-        connected = true;
-        this.socket = io.connect('http://' + window.location.hostname + ':80');
-        this.socket.on('updatechat', function (username, message) {
-            blab.appendMessage(username, message);
-            
-            if (username !== 'SERVER' && username !== blab.current_username) {
-                showAlert(username + ' said something.');
-                makeNoise();
-            }
+    function connect (new_name) {
+        if (isConnected()) { 
+            error = 'Already connected.';
+            return false; 
+        }
 
-            options.onMessageCallback(username, message);
-        });
+        var t = this;
+        username = new_name;
 
-        this.socket.on('connect', function () {
-            if (!provided_username) {
-                blab.current_username = prompt("What's your name?");
-            } else {
-                blab.current_username = provided_username;
-            }
-            blab.socket.emit('adduser', blab.current_username);
-            $('#conversation').html('');
-            $(options.selectors.connect_btn).removeClass('disconnected').addClass('connected');
-            options.onConnectCallback();
-        });
+        if (!username || typeof username !== 'string') {
+            return false;
+        }
 
-        this.socket.on('updateusers', function (data) {
-            $(options.users_list_selector).empty();
-            $.each(data, function (key, value) {
-                $(options.users_list_selector).append('<li><a href="#">' + key + '</a></li>');
-            });
+
+        if (socket) {
+            socket = io.connect(server_url, { 'force new connection': true });
+        } else {
+            socket = io.connect(server_url);
+        }
+
+        socket.on('connect', function () {
+            t.onConnect(username);
+            socket.emit('adduser', username);
         });
-        
-        this.socket.on('disconnect', function () {
-            blab.connected = false;
-            $(options.connect_btn_selector).removeClass('connected').addClass('disconnected');
-            blab.options.onDisconnectCallback();
-        });
+        socket.on('updateusers', t.onUpdateUsers);
+        socket.on('updatechat', t.onMessage);
+        socket.on('disconnect', t.onDisconnect);
     };
 
     /**
      * Disconnect from the server
      */
-    function disconnect () {
-        socket.emit('disconnect', 'Goodbye!');
-        options.onDisconnectCallback();
+    function disconnect (message) {
+        socket.emit('disconnect', message);
+        socket.disconnect();
     };
 
     /**
-     * If disconnected then connect...
+     * Send a message to the server
      */
-    function toggleConnect() {
-        if (connected === true) {
-            console.log('toggle - connecting');
-            appendMessage('CONNECTING', 'Please be patient...<br>');
-            connect();
-        } else {
-            console.log('toggle - disconnecting');
-            disconnect();
-        }
-    }
-
-    function appendMessage (username, message) {
-        var currentdate = new Date(),
-            datetime = currentdate.getFullYear() + "/"
-                     + zeroPad(currentdate.getMonth() + 1, 2) + "/"
-                     + zeroPad(currentdate.getDate(), 2) + " "
-                     + zeroPad(currentdate.getHours(), 2) + ":"
-                     + zeroPad(currentdate.getMinutes(), 2) + ":"
-                     + zeroPad(currentdate.getSeconds(), 2);
-
-        $('#conversation').append('<span title="Message sent ' + datetime + '"><b>' + username + ':</b> ' + message + '</span><br>');
-        $('body').scrollTop($("body")[0].scrollHeight);
-    };
-
     function sendMessage (message) {
-        if (connected !== true) {
-            appendMessage('ERROR', 'Cant send message - disconnected.<br>');
+        if (!isConnected()) {
+            throw {
+                name: 'Disconnected',
+                message: 'Cannot send message: there is no connection.'
+            };
             return false;
         }
 
@@ -168,9 +271,8 @@ var Blabber = (function (overide_options) {
 
     return {
         connect: connect,
+        isConnected: isConnected,
         disconnect: disconnect,
-        appendMessage: appendMessage,
         sendMessage: sendMessage,
-        toggleConnect: toggleConnect
     };
 });

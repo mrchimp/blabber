@@ -5,7 +5,7 @@ html, body {
 }
 
 body {
-    padding-top: 90px;
+    padding: 90px 10px;
     line-height: 135%;
 }
 
@@ -56,7 +56,6 @@ body {
     height: 29px;
     width: 100%;
     margin: 0 0 15px 0;
-    display: none;
 }
 
 #msg_send {
@@ -81,4 +80,8 @@ body {
 }
 #welcome .username {
     margin-bottom: 10px;
+}
+
+#chat-block {
+    opacity: 0;
 }

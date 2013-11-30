@@ -1,13 +1,19 @@
 $(document).ready(function () {
-    var blab = new Blabber({
-        onConnectCallback: function () {
+    var blab = new BlabberClient({
+        'onConnect': function () {
             console.log('Blabber connected');
+            $(this).hide();
+            $('#welcome').hide();
+            $('#chat-block').fadeTo(300, 1);
         },
-        onMessageCallback: function (username, message) {
-            console.log(username + " said " + message);
+        'onMessage': function (username, message) {
+            console.log(username + ": " + message);
         },
-        onDisconnectCallback: function () {
+        'onDisconnect': function () {
             console.log('Blabber disconnected');
+            $('.connect')
+                .removeClass('connected')
+                .addClass('disconnected');
         }
     });
 
@@ -32,10 +38,11 @@ $(document).ready(function () {
             return false;
         }
 
-        $(this).hide();
-        $('#welcome').slideUp();
-        $('#msg_input').slideDown();
-        blab.appendMessage('CONNECTING', 'Please be patient...<br>');
         blab.connect(username);
+    });
+
+    $('.toggle-userlist').on('click', function (e) {
+        e.preventDefault();
+        $('#users').slideToggle();
     });
 });
