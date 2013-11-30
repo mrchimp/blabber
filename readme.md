@@ -21,7 +21,7 @@ Marvelous.
 Run a Server
 ------------
 
-You will need run Blabber as an administrator in order to use a low port number such as 80. 
+You will need run Blabber as root in order to use a port number below 1024, i.e. 80. 
 
     sudo node babble.js
 
