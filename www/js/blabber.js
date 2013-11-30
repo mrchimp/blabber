@@ -82,6 +82,41 @@ var BlabberClient = (function (override_options) {
     }
 
     /**
+     * By MikeMestnik: http://stackoverflow.com/questions/19547008/how-to-replace-plain-urls-with-links-with-example/19708150#19708150
+     * @param  {string} text The text to be searched fro URLs.
+     * @return {string}      The text with URLs replaced
+     */
+    function linkify(text) {
+        console.log('linkifying: '+text);
+        var re = /(\(.*?)?\b((?:https?|ftp|file):\/\/[-a-z0-9+&@#\/%?=~_()|!:,.;]*[-a-z0-9+&@#\/%=~_()|])/ig;
+        return text.replace(re, function(match, lParens, url) {
+            var rParens = '';
+            lParens = lParens || '';
+
+            // Try to strip the same number of right parens from url
+            // as there are left parens.  Here, lParenCounter must be
+            // a RegExp object.  You cannot use a literal
+            //     while (/\(/g.exec(lParens)) { ... }
+            // because an object is needed to store the lastIndex state.
+            var lParenCounter = /\(/g;
+            while (lParenCounter.exec(lParens)) {
+                var m;
+                // We want m[1] to be greedy, unless a period precedes the
+                // right parenthesis.  These tests cannot be simplified as
+                //     /(.*)(\.?\).*)/.exec(url)
+                // because if (.*) is greedy then \.? never gets a chance.
+                if (m = /(.*)(\.\).*)/.exec(url) ||
+                        /(.*)(\).*)/.exec(url)) {
+                    url = m[1];
+                    rParens = m[2] + rParens;
+                }
+            }
+            console.log('ping!');
+            return lParens + "<a href='" + url + "'>" + url + "</a>" + rParens;
+        });
+    }
+
+    /**
      * If disconnected then connect...
      */
     function toggleConnect(username) {
@@ -120,6 +155,8 @@ var BlabberClient = (function (override_options) {
                      + zeroPad(currentdate.getHours(), 2) + ":"
                      + zeroPad(currentdate.getMinutes(), 2) + ":"
                      + zeroPad(currentdate.getSeconds(), 2);
+
+        message = linkify(message);
 
         $('<p />')
             .attr('title', 'Message sent ' + datetime)
