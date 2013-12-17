@@ -1,11 +1,40 @@
 {
-  "name": "Blabber",
-  "description": "node.js chat application",
-  "version": "0.0.1",
-  "repository": { "type": "git", "url": "https://github.com/mrchimp/blabber" },
+  "name": "blabber",
+  "description": "browser based chat server and client with websockets",
+  "version": "0.1.0",
+  "license": "GPL-3.0",
+  "keywords": [
+    "chat", 
+    "websockets", 
+    "realtime", 
+    "im",
+  ],
+  "repository": {
+    "type": "git", 
+    "url": "https://github.com/mrchimp/blabber",
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
   "dependencies": {
     "express": "",
     "socket.io": "",
-    "ent": "~0.1.0"
-  }
+    "ent": "~0.1.0",
+  },
+  "bugs": {
+    "url": "http://github.com/mrchimp/blabber/issues",
+    "email": "blabberbugs@deviouschimp.co.uk",
+  },
+  "contributors": [
+    {
+      "name":  "Jake Gully",
+      "email": "chimpytk@gmail.com",
+      "url":   "http://deviouschimp.co.uk",
+    },
+    {
+      "name":  "Sam Scholefield",
+      "email": "sam.scholefield@gmail.com",
+      "url":   "https://github.com/SamScholefield",
+    }
+  ],
 }

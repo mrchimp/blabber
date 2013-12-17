@@ -267,7 +267,6 @@ var BlabberSocket = (function (server_url) {
             return false;
         }
 
-
         if (socket) {
             socket = io.connect(server_url, { 'force new connection': true });
         } else {
