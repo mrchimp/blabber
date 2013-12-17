@@ -3,15 +3,20 @@ blabber
 
 Web chat system with node and web sockets.
 
+Requirements
+------------------
+
+Node js - http://nodejs.org/
+
 
 Install a Server
 ----------------
 
-Install Node.js - http://nodejs.org/
+Clone the repo into a folder.
 
-Open a terminal and cd to where package.json is.
+Open a terminal and cd to `blabber/`.
 
-Get dependencies by typing: 
+Get dependencies by running:
 
     npm install -d
 
