@@ -23,7 +23,7 @@ Run a Server
 
 You will need run Blabber as root in order to use a port number below 1024, i.e. 80. 
 
-    sudo node babble.js
+    sudo node blabber.js
 
 I would recommend using [Forever](https://github.com/nodejitsu/forever) to keep your process running:
 
