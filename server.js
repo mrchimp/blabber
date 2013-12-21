@@ -98,14 +98,14 @@ io.sockets.on('connection', function (socket) {
 
     socket.on('adduser', function(username, room){
 
-        if (!username || typeof username !== 'string') {
+        if (typeof username !== 'string') {
             console.log('Invalid Username: '+username);
             socket.emit('updatechat', 'SERVER', 'Invalid username.');
             socket.disconnect();
             return false;
         }
 
-        if (!room || typeof room !== 'string') {
+        if (typeof room !== 'string') {
             console.log('Invalid room: '+room);
             socket.emit('updatechat', 'SERVER', 'Invalid room.');
             socket.disconnect();
