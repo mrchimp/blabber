@@ -46,10 +46,19 @@ body {
     padding: 48px 10px 50px 160px;
 }
 
+#chat-block {
+    display: none;
+}
+
 #conversation {
     max-height: 100%;
     overflow-y: auto;
-    margin: 10px;
+    margin: 20px 0;
+    background-color: #eaeaea;
+    padding: 10px;
+}
+#conversation .me {
+    color: red;
 }
 
 #msg_input {
@@ -84,4 +93,7 @@ body {
 
 #chat-block {
     opacity: 0;
+}
+#userlist .well {
+    padding: 0 15px;
 }

@@ -2,9 +2,14 @@ $(document).ready(function () {
     var blab = new BlabberClient({
         'onConnect': function () {
             console.log('Blabber connected');
-            $(this).hide();
+            // $(this).hide();
+            $('.connect')
+                .removeClass('disconnected')
+                .addClass('connected');
             $('#welcome').hide();
             $('#chat-block').fadeTo(300, 1);
+            $('#userlist').slideDown();
+            $('#msg_input').slideDown();
         },
         'onMessage': function (username, message) {
             console.log(username + ": " + message);
@@ -14,6 +19,10 @@ $(document).ready(function () {
             $('.connect')
                 .removeClass('connected')
                 .addClass('disconnected');
+            $('#welcome').slideDown();
+            $('#userlist').slideUp();
+            $('#msg_input').slideUp();
+
         }
     });
 
@@ -32,13 +41,21 @@ $(document).ready(function () {
     $('#welcome form').on('submit', function (e) {
         e.preventDefault();
 
-        var username = $('#welcome .username').val();
+        var username = $('#welcome input[name="username"]').val();
+
         if (!username) {
-            $('#welcome .username').attr('placeholder', 'Enter your name, stupid.');
+            $('#welcome input[name="username"]').attr('placeholder', 'Enter your name, stupid.');
             return false;
         }
 
-        blab.connect(username);
+        var room = $('#welcome input[name="room"]').val();
+
+        if (!room) {
+            $('#welcome input[name="room"]').attr('placeholder', 'Enter a room name, stupid.');
+            return false;
+        }
+
+        blab.connect(username, room);
     });
 
     $('.toggle-userlist').on('click', function (e) {
