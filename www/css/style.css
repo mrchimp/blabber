@@ -53,8 +53,7 @@ body {
 #conversation {
     max-height: 100%;
     overflow-y: auto;
-    margin: 20px 0;
-    background-color: #eaeaea;
+    margin: 0 0 20px;
     padding: 10px;
 }
 #conversation .me {
@@ -96,4 +95,8 @@ body {
 }
 #userlist .well {
     padding: 0 15px;
+}
+
+.container-fluid {
+    margin: 0 15px;
 }

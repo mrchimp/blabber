@@ -7,7 +7,9 @@ var express = require('express'),
     http = require('http'),
     server = http.createServer(app),
     io = require('socket.io').listen(server, { log: false }),
-    ent = require('ent');
+    ent = require('ent'),
+    check = require('validator').check,
+    sanitize = require('validator').sanitize;
 
 var users = {},
     rooms = {},
@@ -19,6 +21,11 @@ var users = {},
         'moderator',
     ];
 
+/**
+ * Send a list of usernames to a room.
+ * @param  {string} room_name the name of the room to update
+ * @return {undefined}
+ */
 function updateUserList(room_name) {
     var usernames = [];
     for (var x = 0; x < rooms[room_name].length; x++) {
@@ -113,43 +120,51 @@ io.sockets.on('connection', function (socket) {
             return false;
         }
 
-        var safe_name = ent.encode(username);
-        var safe_room = ent.encode(room);
+        try {
+            check(room).is(/^[a-zA-Z0-9-]+$/)
+        } catch (err) {
+            console.log('New user kicked room doesnt match regex: ' + room);
+            socket.emit('updatechat', 'SERVER', 'Invalid characters in room name. Only letters, numbers and the dash (-) character are allowed.');
+            socket.disconnect();
+            return false;
+        }
 
-        if (arrayContains(safe_name, reserved_names)) {
+        username = ent.encode(username);
+
+        if (arrayContains(username, reserved_names)) {
             console.log('New user kicked for reserved name: ' + username);
             socket.emit('updatechat', 'SERVER', 'That username is reserved.');
             socket.disconnect();
             return false;
         }
 
-        if (users[safe_name]) {
+        if (users[username]) {
             console.log('New user kicked: name already taken: ' + username);
             socket.emit('updatechat', 'SERVER', 'That name is already taken.');
             socket.disconnect();
             return false;
         }
 
-        socket.username = safe_name;
-        socket.room_name = safe_room;
+        socket.username = username;
+        socket.room_name = room;
 
-        users[safe_name] = {
-            name: safe_name,
+        users[username] = {
+            name: username,
             socket: socket,
-            room_name: safe_room
+            room_name: room
         };
 
-        if (typeof rooms[safe_room] !== 'undefined') {
-            rooms[safe_room].push(users[safe_name]);
+        if (typeof rooms[room] !== 'undefined') {
+            rooms[room].push(users[username]);
         } else {
-            rooms[safe_room] = [users[safe_name]];
+            rooms[room] = [users[username]];
         }
 
-        console.log('+ ' + safe_name + ' joined ' + safe_room);
-        sayToRoom('SERVER', safe_name + ' has connected');
-        socket.emit('updatechat', 'SERVER', 'Greetings! You are in this room: '+safe_room);
+        console.log('+ ' + username + ' joined ' + room);
+        sayToRoom('SERVER', username + ' has connected');
+        socket.emit('updatechat', 'SERVER', 'Greetings! You are in "' + room + '" with ' + (rooms[room].length - 1) + ' other people.');
 
-        updateUserList(safe_room);
+        updateUserList(room);
     });
 
     socket.on('sendchat', function (message) {
@@ -159,7 +174,7 @@ io.sockets.on('connection', function (socket) {
             doAction(action, message);
             return true;
         }
-        message = ent.encode(message)
+        message = ent.encode(message);
         message = linkify(message);
         
         var user = users[socket.username];

@@ -4,9 +4,6 @@
  * http://github.com/mrchimp/blabber
  */
 
-/**
- * This is the main interface.
- */
 var BlabberClient = (function (override_options) {
 
     var options = {
