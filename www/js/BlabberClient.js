@@ -73,8 +73,7 @@ var BlabberClient = (function (override_options) {
             return false; 
         }
 
-        var t = this,
-        username = new_name;
+        var username = new_name;
         room = new_room;
 
         if (!username || typeof username !== 'string') {

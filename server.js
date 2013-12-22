@@ -6,7 +6,7 @@ var express = require('express'),
     app = express(),
     http = require('http'),
     server = http.createServer(app),
-    io = require('socket.io').listen(server),
+    io = require('socket.io').listen(server, { log: false }),
     ent = require('ent');
 
 var users = {},
@@ -81,6 +81,7 @@ app.use(express.static(__dirname + '/www'));
 io.sockets.on('connection', function (socket) {
 
     function sayToRoom(author, message) {
+        console.log('  '+ author + ' in ' + socket.room_name + ' says ' + message);
         for (var i = 0; i < rooms[socket.room_name].length; i++) {
             rooms[socket.room_name][i].socket.emit('updatechat', author, message);
         }
@@ -99,14 +100,14 @@ io.sockets.on('connection', function (socket) {
     socket.on('adduser', function(username, room){
 
         if (typeof username !== 'string') {
-            console.log('Invalid Username: '+username);
+            console.log('New user kicked for invalid Username: ' + username);
             socket.emit('updatechat', 'SERVER', 'Invalid username.');
             socket.disconnect();
             return false;
         }
 
         if (typeof room !== 'string') {
-            console.log('Invalid room: '+room);
+            console.log('New user kicked for invalid room: ' + room);
             socket.emit('updatechat', 'SERVER', 'Invalid room.');
             socket.disconnect();
             return false;
@@ -116,13 +117,14 @@ io.sockets.on('connection', function (socket) {
         var safe_room = ent.encode(room);
 
         if (arrayContains(safe_name, reserved_names)) {
-            console.log('Reserved bane: '+username);
+            console.log('New user kicked for reserved name: ' + username);
             socket.emit('updatechat', 'SERVER', 'That username is reserved.');
             socket.disconnect();
             return false;
         }
 
         if (users[safe_name]) {
+            console.log('New user kicked: name already taken: ' + username);
             socket.emit('updatechat', 'SERVER', 'That name is already taken.');
             socket.disconnect();
             return false;
@@ -134,19 +136,20 @@ io.sockets.on('connection', function (socket) {
         users[safe_name] = {
             name: safe_name,
             socket: socket,
-            room_name: room
+            room_name: safe_room
         };
 
-        if (typeof rooms[room] !== 'undefined') {
-            rooms[room].push(users[safe_name]);
+        if (typeof rooms[safe_room] !== 'undefined') {
+            rooms[safe_room].push(users[safe_name]);
         } else {
-            rooms[room] = [users[safe_name]];
+            rooms[safe_room] = [users[safe_name]];
         }
 
+        console.log('+ ' + safe_name + ' joined ' + safe_room);
         sayToRoom('SERVER', safe_name + ' has connected');
-        socket.emit('updatechat', 'SERVER', 'Greetings! You are in this room: '+room);
+        socket.emit('updatechat', 'SERVER', 'Greetings! You are in this room: '+safe_room);
 
-        updateUserList(room);
+        updateUserList(safe_room);
     });
 
     socket.on('sendchat', function (message) {
@@ -158,17 +161,15 @@ io.sockets.on('connection', function (socket) {
         }
         message = ent.encode(message)
         message = linkify(message);
-        // io.sockets.emit('updatechat', ent.encode(socket.username), message);
         
         var user = users[socket.username];
 
-        for (var i = 0; i < rooms[user.room_name].length; i++) {
-            rooms[user.room_name][i].socket.emit('updatechat', ent.encode(socket.username), message);
-        }
+        sayToRoom(socket.username, message);
     });
     
     socket.on('disconnect', function(){
         if (socket.username) {
+            console.log('- ' + socket.username + ' disconnected.');
             var user = users[socket.username];
             delete users[socket.username];
 
