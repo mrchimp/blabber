@@ -20,7 +20,9 @@
     "express": "",
     "socket.io": "",
     "ent": "~0.1.0",
-    "validator": ""
+    "validator": "",
+    "commander": "",
+    "blessed": ""
   },
   "bugs": {
     "url": "http://github.com/mrchimp/blabber/issues",

@@ -1,195 +1,85 @@
-/**
- * Blabber server.
- */
+var blabber = require('./modules/Blabber.js'),
+    program = require('commander');
 
-var express = require('express'),
-    app = express(),
-    http = require('http'),
-    server = http.createServer(app),
-    io = require('socket.io').listen(server, { log: false }),
-    ent = require('ent'),
-    check = require('validator').check,
-    sanitize = require('validator').sanitize;
+program
+  .version('0.1.0')
+  .option('-s, --silent', 'run the server with no interaction')
+  .option('-w, --www  [www]', 'specify the static content directory.', __dirname + '/www')
+  .option('-h, --host [host]', 'specify the host', '0.0.0.0')
+  .option('-p, --port [port]', 'specify the port to serve on', parseInt, 80)
+  .parse(process.argv);
 
-var users = {},
-    rooms = {},
-    reserved_names = [
-        'server',
-        'connecting',
-        'admin',
-        'mod',
-        'moderator',
-    ];
-
-/**
- * Send a list of usernames to a room.
- * @param  {string} room_name the name of the room to update
- * @return {undefined}
- */
-function updateUserList(room_name) {
-    var usernames = [];
-    for (var x = 0; x < rooms[room_name].length; x++) {
-        usernames.push(rooms[room_name][x].name);
-    }
-    for (var i = 0; i < rooms[room_name].length; i++) {
-        rooms[room_name][i].socket.emit('updateusers', usernames);
-    }
-}
-
-/**
- * By MikeMestnik: http://stackoverflow.com/questions/19547008/how-to-replace-plain-urls-with-links-with-example/19708150#19708150
- * Edited to work with escaped HTML entities
- * @param  {string} text The text to be searched fro URLs.
- * @return {string}      The text with URLs replaced
- */
-function linkify(text) {
-    var re = /(\(.*?)?\b((?:https?|ftp|file)&colon;&sol;&sol;[-a-z0-9+&@#\/%?=~_()|!:,.;]*[-a-z0-9+&@#\/%=~_()|])/ig;
-    return text.replace(re, function(match, lParens, url) {
-        var rParens = '';
-        lParens = lParens || '';
-
-        // Try to strip the same number of right parens from url
-        // as there are left parens.  Here, lParenCounter must be
-        // a RegExp object.  You cannot use a literal
-        //     while (/\(/g.exec(lParens)) { ... }
-        // because an object is needed to store the lastIndex state.
-        var lParenCounter = /\(/g;
-        while (lParenCounter.exec(lParens)) {
-            var m;
-            // We want m[1] to be greedy, unless a period precedes the
-            // right parenthesis.  These tests cannot be simplified as
-            //     /(.*)(\.?\).*)/.exec(url)
-            // because if (.*) is greedy then \.? never gets a chance.
-            if (m = /(.*)(\.\).*)/.exec(url) ||
-                    /(.*)(\).*)/.exec(url)) {
-                url = m[1];
-                rParens = m[2] + rParens;
-            }
-        }
-        return lParens + "<a href='" + url + "' target=\"_blank\">" + url + "</a>" + rParens;
-    });
-}
-
-/**
- * Search for a string in an array
- * @param  {string} needle      the string to search for
- * @param  {array}  arrhaystack the array to search
- * @return {boolean}             true if needle is found
- */
-function arrayContains(needle, arrhaystack) {
-    return (arrhaystack.indexOf(needle) > -1);
-}
-
-
-server.listen(80, "0.0.0.0");
-
-app.use(express.static(__dirname + '/www'));
-
-io.sockets.on('connection', function (socket) {
-
-    function sayToRoom(author, message) {
-        console.log('  '+ author + ' in ' + socket.room_name + ' says ' + message);
-        for (var i = 0; i < rooms[socket.room_name].length; i++) {
-            rooms[socket.room_name][i].socket.emit('updatechat', author, message);
-        }
-    }
-
-    function doAction(action, message) {
-        switch (action) {
-            case '/help':
-                socket.emit('updatechat', 'SERVER', 'Are you having problems?');
-                break;
-            default:
-                socket.emit('updatechat', 'SERVER', ent.encode(action)+' is not a command.');
-        }
-    }
-
-    socket.on('adduser', function(username, room){
-
-        if (typeof username !== 'string') {
-            console.log('New user kicked for invalid Username: ' + username);
-            socket.emit('updatechat', 'SERVER', 'Invalid username.');
-            socket.disconnect();
-            return false;
-        }
-
-        if (typeof room !== 'string') {
-            console.log('New user kicked for invalid room: ' + room);
-            socket.emit('updatechat', 'SERVER', 'Invalid room.');
-            socket.disconnect();
-            return false;
-        }
-
-        try {
-            check(room).is(/^[a-zA-Z0-9-]+$/)
-        } catch (err) {
-            console.log('New user kicked room doesnt match regex: ' + room);
-            socket.emit('updatechat', 'SERVER', 'Invalid characters in room name. Only letters, numbers and the dash (-) character are allowed.');
-            socket.disconnect();
-            return false;
-        }
-
-        username = ent.encode(username);
-
-        if (arrayContains(username, reserved_names)) {
-            console.log('New user kicked for reserved name: ' + username);
-            socket.emit('updatechat', 'SERVER', 'That username is reserved.');
-            socket.disconnect();
-            return false;
-        }
-
-        if (users[username]) {
-            console.log('New user kicked: name already taken: ' + username);
-            socket.emit('updatechat', 'SERVER', 'That name is already taken.');
-            socket.disconnect();
-            return false;
-        }
-
-        socket.username = username;
-        socket.room_name = room;
-
-        users[username] = {
-            name: username,
-            socket: socket,
-            room_name: room
-        };
-
-        if (typeof rooms[room] !== 'undefined') {
-            rooms[room].push(users[username]);
-        } else {
-            rooms[room] = [users[username]];
-        }
-
-        console.log('+ ' + username + ' joined ' + room);
-        sayToRoom('SERVER', username + ' has connected');
-        socket.emit('updatechat', 'SERVER', 'Greetings! You are in "' + room + '" with ' + (rooms[room].length - 1) + ' other people.');
-
-        updateUserList(room);
-    });
-
-    socket.on('sendchat', function (message) {
-        if (message[0] === '/') {
-            socket.emit('updatechat', ent.encode(socket.username), message);
-            var action = message.split(' ')[0];
-            doAction(action, message);
-            return true;
-        }
-        message = ent.encode(message);
-        message = linkify(message);
-        
-        var user = users[socket.username];
-
-        sayToRoom(socket.username, message);
-    });
-    
-    socket.on('disconnect', function(){
-        if (socket.username) {
-            console.log('- ' + socket.username + ' disconnected.');
-            var user = users[socket.username];
-            delete users[socket.username];
-
-            updateUserList(user.room_name);
-            socket.broadcast.emit('updatechat', 'SERVER', socket.username + ' has disconnected');
-        }
-    });
+var server = new blabber({
+  server: program.host,
+  port: program.port,
+  static_dir: program.www
 });
+
+if (program.silent) {
+  startSilent();
+} else {
+  startGUI();
+}
+
+function startSilent() {
+  server.start();
+  
+  server.on('log', function (params) {
+    console.log(params.message);
+  });
+}
+
+function startGUI () {
+  var blessed = require('blessed');
+
+  var screen = blessed.screen();
+
+  var log = blessed.box({
+    top: 'center',
+    left: 0,
+    height: '100%',
+    width: '50%',
+    tags: true,
+    scrollable: true,
+    border: {
+      type: 'line'
+    },
+    style: {
+      fg: 'white',
+      bg: 'black',
+      border: {
+        fg: 'red'
+      }
+    }
+  });
+
+  screen.append(log);
+
+  screen.key(['escape', 'C-c'], function (ch, key) {
+    return process.exit(0);
+  });
+
+  // log.on('click', function (data) {
+  //   log.focus();
+  // });
+
+  screen.key(['home'], function (ch, key) { // how do we do arrow keys?
+    log.scroll(-1);
+    log.pushLine(1, 'o pressed');
+  });
+
+  screen.key(['end'], function (ch, key) { // how do we do arrow keys?
+    log.scroll(1);
+    log.pushLine(1, 'l pressed');
+  });
+
+  screen.render();
+
+  log.focus();
+
+  server.on('log', function (params) {
+    log.pushLine(1, params.message);
+  });
+
+  server.start();
+}
