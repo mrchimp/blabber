@@ -1,15 +1,13 @@
 $(document).ready(function () {
     var blab = new BlabberClient({
         'onConnect': function () {
-            console.log('Blabber connected');
-            // $(this).hide();
             $('.connect')
                 .removeClass('disconnected')
                 .addClass('connected');
             $('#welcome').hide();
             $('#chat-block').fadeTo(300, 1);
             $('#userlist').slideDown();
-            $('#msg_input').slideDown();
+            $('#chat_input').slideDown();
         },
         'onMessage': function (username, message) {
             console.log(username + ": " + message);
@@ -21,7 +19,7 @@ $(document).ready(function () {
                 .addClass('disconnected');
             $('#welcome').slideDown();
             $('#userlist').slideUp();
-            $('#msg_input').slideUp();
+            $('#chat_input').slideUp();
 
         }
     });

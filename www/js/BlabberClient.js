@@ -158,13 +158,11 @@ var BlabberClient = (function (override_options) {
     // Event handlers    
 
     function onConnect(username) {
-        console.log('onConnect called');
         $(options.selectors.connect_btn).removeClass('disconnected').addClass('connected').find('span').text('Connected');
         options.onConnect(username);
     }
 
     function onUpdateUsers(userlist) {
-        console.log('onUpdateUsers called');
         console.log(userlist);
         $(options.selectors.users_list).empty();
         $.each(userlist, function (username, value) {
@@ -173,7 +171,6 @@ var BlabberClient = (function (override_options) {
     }
 
     function onMessage(username, message) {
-        console.log('onMessage called');
         if (username !== 'SERVER' && username !== socket.username) {
             showAlert(username + ' said something.');
             makeNoise();
@@ -182,7 +179,6 @@ var BlabberClient = (function (override_options) {
     }
 
     function onDisconnect() {
-        console.log('onDisconnect called');
         appendMessage('SERVER', 'Disconnected');
         $(options.selectors.connect_btn).removeClass('connected').addClass('disconnected').find('span').text('Disconnected');
         options.onDisconnect();0
@@ -197,7 +193,6 @@ var BlabberClient = (function (override_options) {
      * @return {string}      The text with URLs replaced
      */
     function linkify(text) {
-        console.log('linkifying: '+text);
         var re = /(\(.*?)?\b((?:https?|ftp|file):\/\/[-a-z0-9+&@#\/%?=~_()|!:,.;]*[-a-z0-9+&@#\/%=~_()|])/ig;
         return text.replace(re, function(match, lParens, url) {
             var rParens = '';

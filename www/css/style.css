@@ -5,7 +5,7 @@ html, body {
 }
 
 body {
-    padding: 90px 10px;
+    padding: 90px 0;
     line-height: 135%;
 }
 
@@ -17,7 +17,7 @@ body {
 
 .fill{
     min-height: 100%;
-    position: relative;
+    position: rel%;ative;
 }
 
 .filler:after{
@@ -60,10 +60,19 @@ body {
     color: red;
 }
 
-#msg_input {
+
+#chat_input {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: #333;
+    padding: 10px;
+    display: none;
+}
+#chat_input input {
     height: 29px;
     width: 100%;
-    margin: 0 0 15px 0;
+    margin: 0;
 }
 
 #msg_send {

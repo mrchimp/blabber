@@ -15,12 +15,6 @@ var server = new blabber({
   static_dir: program.www
 });
 
-if (program.silent) {
-  startSilent();
-} else {
-  startGUI();
-}
-
 function startSilent() {
   server.start();
   
@@ -30,56 +24,141 @@ function startSilent() {
 }
 
 function startGUI () {
-  var blessed = require('blessed');
+  var blessed = require('blessed'),
+      blessprog = blessed.program(),
+      screen = blessed.screen();
 
-  var screen = blessed.screen();
-
-  var log = blessed.box({
-    top: 'center',
-    left: 0,
-    height: '100%',
-    width: '50%',
-    tags: true,
-    scrollable: true,
-    border: {
-      type: 'line'
-    },
-    style: {
-      fg: 'white',
-      bg: 'black',
-      border: {
-        fg: 'red'
-      }
-    }
-  });
-
-  screen.append(log);
+  blessprog.hideCursor();
 
   screen.key(['escape', 'C-c'], function (ch, key) {
     return process.exit(0);
   });
 
-  // log.on('click', function (data) {
-  //   log.focus();
-  // });
-
-  screen.key(['home'], function (ch, key) { // how do we do arrow keys?
-    log.scroll(-1);
-    log.pushLine(1, 'o pressed');
+  var events = blessed.box({
+    name: 'events',
+    top: 0,
+    left: 0,
+    height: '70%',
+    width: '50%',
+    tags: true,
+    mouse: true,
+    scrollable: true,
+    scrollbar: {
+      fg: 'white'
+    },
+    style: {
+      fg: 'white',
+      bg: 'black',
+      scrollbar: {
+        bg: 'white'
+      },
+      focus: {
+        bg: 'blue',
+      }
+    }
   });
 
-  screen.key(['end'], function (ch, key) { // how do we do arrow keys?
-    log.scroll(1);
-    log.pushLine(1, 'l pressed');
+  var room_list = blessed.box({
+    name: 'room_list',
+    top: 0,
+    content: 'Room list.',
+    right: 0,
+    height: '70%',
+    width: '50%',
+    tags: true,
+    scrollable: true,
+    style: {
+      fg: 'white',
+      bg: 'black',
+      scrollbar: {
+        bg: 'red',
+        fg: 'green'
+      },
+      focus: {
+        bg: 'blue',
+      }
+    }
   });
 
-  screen.render();
-
-  log.focus();
+  var chat_log = blessed.box({
+    name: 'chat_log',
+    top: '70%',
+    left: 0,
+    height: '30%',
+    width: '100%',
+    tags: true,
+    scrollable: true,
+    style: {
+      fg: 'white',
+      bg: 'black',
+      scrollbar: {
+        bg: 'red',
+        fg: 'green'
+      },
+      focus: {
+        bg: 'blue',
+      }
+    }
+  });
 
   server.on('log', function (params) {
-    log.pushLine(1, params.message);
+    events.insertBottom(params.message);
+    events.setScrollPerc(100);
+    screen.render();
   });
 
+  server.on('message', function (params) {
+    chat_log.insertBottom('[' + params.room_name + '] ' + params.author + ': ' + params.message);
+    screen.render();
+  });
+
+  server.on('update_room_list', function (data) {
+    room_list.setContent('Room list:');
+    for (var i = 0; i < data.rooms.length; i++) {
+      room_list.insertBottom('• ' + data.rooms[i]);
+    }
+    screen.render();
+  });
+
+  events.on('keypress', function (ch, key) {
+    switch (key.name) {
+      case 'up':
+        events.scroll(1);
+        break;
+      case 'down':
+        events.scroll(-1);
+        break;
+    }
+    screen.render();
+  });
+
+  events.on('click', function (data) {
+    events.focus();
+    screen.render();
+  });
+
+  room_list.on('click', function (data) {
+    room_list.focus();
+    screen.render();
+  });
+
+  chat_log.on('click', function (data) {
+    chat_log.focus();
+    screen.render();
+  });
+
+  screen.append(events);
+  screen.append(room_list);
+  screen.append(chat_log);
+
+  events.focus();
+  events.setContent("Server started!");
   server.start();
+  screen.render();
+}
+
+if (program.silent) {
+  startSilent();
+} else {
+  startGUI();
 }

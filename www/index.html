@@ -24,7 +24,6 @@
   <div class="row" id="chat-block">
     <div class="col-md-9">
       <div id="conversation" class="well"></div>
-      <input class="form-control" type="text" id="msg_input" placeholder="Type here. Press ENTER to send.">
     </div>
 
     <div class="col-md-3">
@@ -53,13 +52,17 @@
           <input name="username" class="username form-control" type="text" placeholder="e.g. Dave Random">
         </div>
         <div class="form-group">
-          <label for="room">Room to join - letters, numbers and - only.</label>
-          <input name="room" value="default" class="username form-control" type="text" placeholder="e.g. default">
+          <label for="room">Room to join</label>
+          <input name="room" value="default" class="username form-control" type="text" placeholder="e.g. default" title="Letters, numbers and - only">
         </div>
         <button type="submit" class="start btn btn-lg btn-primary">Start chat</button>
       </form>
     </div>
   </div>
+</div>
+
+<div id="chat_input">
+  <input class="form-control" type="text" id="msg_input" placeholder="Type here. Press ENTER to send.">
 </div>
 
 <div class="modal fade" id="settings">
