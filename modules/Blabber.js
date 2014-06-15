@@ -289,7 +289,7 @@ module.exports = (function (override_options) {
       // Add them to the room
       var room = getRoom(room_name);
 
-      if (room == false) {
+      if (typeof room == 'undefined' || room === false) {
         var room = new Room({
           name: room_name,
         });

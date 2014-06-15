@@ -1,5 +1,6 @@
 var blabber = require('./modules/Blabber.js'),
-    program = require('commander');
+    program = require('commander'),
+    ent      = require('ent');
 
 program
   .version('0.1.0')
@@ -108,7 +109,7 @@ function startGUI () {
   });
 
   server.on('message', function (params) {
-    chat_log.insertBottom('[' + params.room_name + '] ' + params.author + ': ' + params.message);
+    chat_log.insertBottom('[' + params.room_name + '] ' + params.author + ': ' + ent.decode(params.message));
     screen.render();
   });
 
