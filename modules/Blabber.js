@@ -22,7 +22,6 @@ module.exports = (function (override_options) {
         port: 80,
         static_dir: __dirname + '/www'
       },
-      users = {},
       rooms = [],
       event_handlers = {},
       reserved_names = [
@@ -101,23 +100,23 @@ module.exports = (function (override_options) {
    * @return {undefined}
    */
   function updateUserList(room_name) {
-    var usernames = [];
-    
-    var room = getRoom(room_name);
+    var usernames = [],
+        room = getRoom(room_name),
+        users = room.getUsers();
 
-    if (!room) {
+    if (!room || !users.length) {
       return false;
     }
 
     // get list of usernames
-    for (var x = 0; x < room.users.length; x++) {
-      usernames.push(room.users[x].getName());
+    for (var x = 0; x < users.length; x++) {
+      usernames.push(users[x].getName());
     }
     
     // send out to each user
-    for (var i = 0; i < room.users.length; i++) {
-      if (room.users[i].socket) {
-        room.users[i].socket.emit('updateusers', usernames);
+    for (var i = 0; i < users.length; i++) {
+      if (users[i].socket) {
+        users[i].socket.emit('updateusers', usernames);
       } else {
         console.error('socket not set...');
       }
@@ -210,8 +209,6 @@ module.exports = (function (override_options) {
       }
 
       for (var i = 0; i < room.users.length; i++) {
-        // console.log('found user: '+room.users[i].getName());
-        // console.log(util.inspect(room.users[i], false, null));
         room.users[i].socket.emit('updatechat', author, message);
       }
 
@@ -233,6 +230,11 @@ module.exports = (function (override_options) {
       }
     }
 
+    /**
+     * adduser event received from user
+     * @param  {string} username  The user's name
+     * @param  {string} room_name The name of the room they are trying to join
+     */
     socket.on('adduser', function(username, room_name){
       if (typeof username !== 'string') {
           log('New user kicked for invalid Username: ' + username);
@@ -266,6 +268,23 @@ module.exports = (function (override_options) {
         return false;
       }
 
+      var room = getRoom(room_name);
+
+      if (!room) {
+        room = new Room({
+          name: room_name
+        });
+
+        rooms.push(room);
+      }
+
+      if (typeof room.users[username] !== 'undefined') {
+        log('New user kicked. User "' + username + '" already exists.');
+        socket.emit('updatechat', 'SERVER', 'That username exists.');
+        socket.disconnect();
+        return false;
+      }
+
       // replace with per-room check
       // if (users[username]) {
       //     log('New user kicked: name already taken: ' + username);
@@ -284,20 +303,8 @@ module.exports = (function (override_options) {
           room_name: room_name
       });
 
-      users[username] = user;
-
-      // Add them to the room
-      var room = getRoom(room_name);
-
-      if (typeof room == 'undefined' || room === false) {
-        var room = new Room({
-          name: room_name,
-        });
-
-        rooms.push(room);
-      }
-
-      room.addUser(users[username]);
+      // Add user to list of all users
+      room.addUser(user);
 
       // Tell people what just happened
       log('+ ' + username + ' joined ' + room_name);
@@ -311,6 +318,10 @@ module.exports = (function (override_options) {
       updateUserList(room_name);
     });
 
+    /**
+     * Receive a message from a user
+     * @param  {string} message The user's message 
+     */
     socket.on('sendchat', function (message) {
       if (message[0] === '/') {
         socket.emit('updatechat', ent.encode(socket.username), message);
@@ -325,13 +336,16 @@ module.exports = (function (override_options) {
       sayToRoom(socket.username, message);
     });
     
+    /**
+     * Triggered when a user actively or passively disconnects
+     */
     socket.on('disconnect', function(){
       if (socket.username) {
+        var room = getRoom(socket.room_name);
+        
+        room.removeUser(socket.username);
         log('- ' + socket.username + ' disconnected.');
-        var user = users[socket.username];
-        delete users[socket.username];
-
-        updateUserList(user.room_name);
+        updateUserList(room.getName());
         socket.broadcast.emit('updatechat', 'SERVER', socket.username + ' has disconnected');
       }
 

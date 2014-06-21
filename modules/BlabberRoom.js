@@ -20,6 +20,15 @@ module.exports = (function (override_options) {
     users.push(user);
   }
 
+  function removeUser(username){
+    for (var x = 0; x < users.length; x++) {
+      if (users[x].getName() === username) {
+        users.splice(x, 1);
+        return;
+      }
+    }
+  }
+
   function getName() {
     return name;
   }
@@ -28,6 +37,7 @@ module.exports = (function (override_options) {
     getUsers: getUsers,
     addUser: addUser,
     getName: getName,
+    removeUser: removeUser,
     users: users
   };
 });

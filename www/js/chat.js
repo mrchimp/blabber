@@ -21,7 +21,9 @@ $(document).ready(function () {
             $('#userlist').slideUp();
             $('#chat_input').slideUp();
 
-        }
+        },
+        port: 8080,
+        voice: false
     });
 
     $('#msg_input').keypress(function (e) {

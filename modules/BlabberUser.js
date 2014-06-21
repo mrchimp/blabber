@@ -6,9 +6,9 @@ module.exports = (function (override_options) {
       socket,
       room_name;
 
-  if (!override_options.socket 
-  || !override_options.room_name 
-  || !override_options.name) {
+  if (!override_options.socket || 
+  !override_options.room_name || 
+  !override_options.name) {
     return false;
   }
 
