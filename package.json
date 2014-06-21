@@ -4,13 +4,13 @@
   "version": "0.1.0",
   "license": "GPL-3.0",
   "keywords": [
-    "chat", 
-    "websockets", 
-    "realtime", 
+    "chat",
+    "websockets",
+    "realtime",
     "im"
   ],
   "repository": {
-    "type": "git", 
+    "type": "git",
     "url": "https://github.com/mrchimp/blabber"
   },
   "scripts": {
@@ -24,20 +24,28 @@
     "commander": "",
     "blessed": ""
   },
+  "devDependencies": {
+    "grunt": "~0.4.1",
+    "grunt-contrib-concat": "~0.3.0",
+    "grunt-contrib-uglify": "~0.2.2",
+    "grunt-contrib-watch": "~0.4.0",
+    "grunt-contrib-jshint": "~0.10.0",
+    "grunt-focus": "~0.1.1"
+  },
   "bugs": {
     "url": "http://github.com/mrchimp/blabber/issues",
     "email": "blabberbugs@deviouschimp.co.uk"
   },
   "contributors": [
     {
-      "name":  "Jake Gully",
+      "name": "Jake Gully",
       "email": "chimpytk@gmail.com",
-      "url":   "http://deviouschimp.co.uk"
+      "url": "http://deviouschimp.co.uk"
     },
     {
-      "name":  "Sam Scholefield",
+      "name": "Sam Scholefield",
       "email": "sam.scholefield@gmail.com",
-      "url":   "https://github.com/SamScholefield"
+      "url": "https://github.com/SamScholefield"
     }
   ]
 }

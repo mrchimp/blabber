@@ -13,7 +13,9 @@ var BlabberClient = (function (override_options) {
             users_list: '#users',
             connect_btn: '.connect',
             conversation: '#conversation',
-            use_sound: '#options .sound_enabled',
+            use_sound: '#settings .sound_enabled',
+            use_voice_output: '#settings .voice_output_enabled',
+            use_voice_input: '#settings .voice_input_enabled',
         },
         onConnect: function (username) {},
         onDisconnect: function () {},
@@ -27,14 +29,16 @@ var BlabberClient = (function (override_options) {
     alert_timeout,
     window_title = document.title,
     $new_msg_sound = document.createElement('audio'),
-    audioTagSupport = !!($new_msg_sound.canPlayType),
+    audio_supported = !!($new_msg_sound.canPlayType),
+    voice_supported = 'speechSynthesis' in window,
+    voices = window.speechSynthesis.getVoices(),
     server_url;
 
     $.extend(options, override_options);
 
     server_url = options.server + ':' + options.port.toString();
 
-    if (audioTagSupport) {
+    if (audio_supported) {
         canPlayMp3 = !!$new_msg_sound.canPlayType && "" !== $new_msg_sound.canPlayType('audio/mpeg');
         canPlayOgg = !!$new_msg_sound.canPlayType && "" !== $new_msg_sound.canPlayType('audio/ogg; codecs="vorbis"');
         $('body').append($new_msg_sound);
@@ -99,7 +103,7 @@ var BlabberClient = (function (override_options) {
      */
     function disconnect(msg) {
         if (!msg) {
-            msg = 'Goodbye!'
+            msg = 'Goodbye!';
         }
         socket.emit('disconnect', msg);
         socket.disconnect();
@@ -137,12 +141,12 @@ var BlabberClient = (function (override_options) {
      */
     function appendMessage (username, message) {
         var currentdate = new Date(),
-            datetime = currentdate.getFullYear() + "/"
-                     + zeroPad(currentdate.getMonth() + 1, 2) + "/"
-                     + zeroPad(currentdate.getDate(), 2) + " "
-                     + zeroPad(currentdate.getHours(), 2) + ":"
-                     + zeroPad(currentdate.getMinutes(), 2) + ":"
-                     + zeroPad(currentdate.getSeconds(), 2);
+            datetime = currentdate.getFullYear() + "/" + 
+                       zeroPad(currentdate.getMonth() + 1, 2) + "/" + 
+                       zeroPad(currentdate.getDate(), 2) + " " + 
+                       zeroPad(currentdate.getHours(), 2) + ":" + 
+                       zeroPad(currentdate.getMinutes(), 2) + ":" + 
+                       zeroPad(currentdate.getSeconds(), 2);
 
         message = linkify(message);
 
@@ -151,7 +155,7 @@ var BlabberClient = (function (override_options) {
             .html('<b>' + username + ':</b> ' + message)
             .appendTo(options.selectors.conversation);
         $('body').scrollTop($('body')[0].scrollHeight);
-    };
+    }
 
     
 
@@ -175,15 +179,40 @@ var BlabberClient = (function (override_options) {
             showAlert(username + ' said something.');
             makeNoise();
         }
+
+        speakMessage(username + ' says: ' + message);
+
         appendMessage(username, message);
+    }
+
+    function speakMessage(msg) {
+        var utterance;
+
+        if (!useVoice()) {
+            return false;
+        }
+
+        utterance = new SpeechSynthesisUtterance();
+        utterance.volume = 1;
+        utterance.rate = 1;
+        utterance.pitch = 2;
+        utterance.text = msg;
+        window.speechSynthesis.speak(utterance);
+    }
+
+    /**
+     * Check browser capabilities and user settings. 
+     * @return {Boolean} true if voice can && should be used.
+     */
+    function useVoice() {
+        return (voice_supported && $(options.selectors.use_voice_output).is(':checked'));
     }
 
     function onDisconnect() {
         appendMessage('SERVER', 'Disconnected');
         $(options.selectors.connect_btn).removeClass('connected').addClass('disconnected').find('span').text('Disconnected');
-        options.onDisconnect();0
+        options.onDisconnect();
     }
-
 
     // Helpers
 
@@ -210,17 +239,22 @@ var BlabberClient = (function (override_options) {
                 // right parenthesis.  These tests cannot be simplified as
                 //     /(.*)(\.?\).*)/.exec(url)
                 // because if (.*) is greedy then \.? never gets a chance.
-                if (m = /(.*)(\.\).*)/.exec(url) ||
-                        /(.*)(\).*)/.exec(url)) {
+                m = (/(.*)(\.\).*)/.exec(url) || /(.*)(\).*)/.exec(url));
+                if (m) {
                     url = m[1];
                     rParens = m[2] + rParens;
                 }
             }
-            console.log('ping!');
             return lParens + "<a href='" + url + "'>" + url + "</a>" + rParens;
         });
     }
 
+    /**
+     * Prepend zeros to a string up to a given length.
+     * @param  {string} str the number to pad.
+     * @param  {number} len the final length to return
+     * @return {string}     the padded string
+     */
     function zeroPad (str, len) {
         str = str.toString();
         while (str.length < len) {
@@ -233,8 +267,7 @@ var BlabberClient = (function (override_options) {
      * Fairly intelligent
      */
     function isConnected () {
-        if (!socket) { return false }
-        return socket.socket.connected;
+        return (socket ? socket.socket.connected : false);
     }
 
     /**
@@ -253,7 +286,7 @@ var BlabberClient = (function (override_options) {
      * If we're allowed & able, make a sound.
      */
     function makeNoise() {
-        if (audioTagSupport && $(options.selectors.use_sound).is(':checked')) {
+        if (audio_supported && $(options.selectors.use_sound).is(':checked')) {
             $new_msg_sound.get(0).play();
         }
     }
