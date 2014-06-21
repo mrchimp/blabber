@@ -1,0 +1,116 @@
+
+@import '../../bower_components/bootstrap/less/bootstrap.less';
+@import '../../bower_components/fontawesome/less/font-awesome.less';
+
+
+/* Mmm-mmm */
+
+html, body {
+    height: 100%;
+}
+
+body {
+    padding: 90px 0;
+    line-height: 135%;
+}
+
+* {
+    -webkit-box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+}
+
+.fill{
+    min-height: 100%;
+    position: relative;
+}
+
+.filler:after{
+    background-color: inherit;
+    bottom: 0;
+    content: "";
+    right: 0;
+    position: absolute;
+    top: 0;
+    width: inherit;
+    z-index: -1;  
+}
+
+.disconnected {
+    color: #900 !important;
+}
+
+.connected {
+    color: #090 !important;
+}
+
+#chat_log {
+    float:left;
+    height:100%;
+    width: 100%;
+    padding: 48px 10px 50px 160px;
+}
+
+#chat-block {
+    display: none;
+}
+
+#conversation {
+    max-height: 100%;
+    overflow-y: auto;
+    margin: 0 0 20px;
+    padding: 10px;
+}
+#conversation .me {
+    color: red;
+}
+
+
+#chat_input {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    background-color: #333;
+    padding: 10px;
+    display: none;
+}
+#chat_input input {
+    height: 29px;
+    width: 100%;
+    margin: 0;
+}
+
+#msg_send {
+    width: 15%;
+    height: 29px;
+    margin: 0;
+    padding: 0;
+    float: right;
+}
+
+#start {
+    width: 200px;
+    font-size: 24px;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+}
+
+#welcome .start,
+#welcome .username {
+    width: 100%;
+}
+#welcome .username {
+    margin-bottom: 10px;
+}
+
+#chat-block {
+    opacity: 0;
+}
+#userlist .well {
+    padding: 0 15px;
+}
+
+.container-fluid {
+    margin: 0 15px;
+}

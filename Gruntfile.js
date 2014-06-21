@@ -1,9 +1,11 @@
 module.exports = function(grunt) {
 
     var js_files = [
-        'src/js/jquery-1.10.2.min.js',
+        'bower_components/jquery/dist/jquery.js',
+        'bower_components/bootstrap/dist/js/bootstrap.js',
         'src/js/BlabberClient.js',
-        'src/js/chat.js'
+        'bower_components/annyang/annyang.js',
+        'src/js/main.js'
     ];
 
     var jshint_files = [
@@ -16,7 +18,7 @@ module.exports = function(grunt) {
         concat: {
             dist: {
                 src: js_files,
-                dest: 'www/js/production.js'
+                dest: 'www/js/script.js'
             }
         },
         uglify: {
@@ -26,7 +28,7 @@ module.exports = function(grunt) {
             },
             dist: {
                 files: {
-                    'www/js/production.min.js': js_files
+                    'www/js/script.min.js': js_files
                 }
             }
         },
@@ -36,10 +38,46 @@ module.exports = function(grunt) {
         focus: {
           all: {}
         },
-        watch: {
+        less: {
             dist: {
-                files: ['src/js/**'],
+                files: {
+                    'www/css/style.css': 'src/less/main.less'
+                }
+            }
+        },
+        copy: {
+            fonts: {
+                files: [
+                    {
+                        expand: true,
+                        cwd: 'bower_components/fontawesome/fonts/',
+                        src: '*',
+                        dest: 'www/fonts/',
+                        flatten: true,
+                        filter: 'isFile'
+                    },
+                    {
+                        expand: true,
+                        cwd: 'bower_components/bootstrap/fonts/',
+                        src: '*',
+                        dest: 'www/fonts/',
+                        flatten: true,
+                        filter: 'isFile'
+                    },
+                ]
+            }
+        },
+        watch: {
+            js: {
+                files: ['src/js/*.js'],
                 tasks: ['concat', 'uglify'],
+                options: {
+                    nospawn: true
+                }
+            },
+            less: {
+                files: ['src/less/*.less'],
+                tasks: ['less'],
                 options: {
                     nospawn: true
                 }
@@ -48,10 +86,13 @@ module.exports = function(grunt) {
     });
 
     grunt.loadNpmTasks('grunt-contrib-concat');
+    grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-contrib-uglify');
+    grunt.loadNpmTasks('grunt-contrib-less');
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-focus');
 
-    grunt.registerTask('default', ['jshint', 'concat', 'uglify']);
+    grunt.registerTask('default', ['jshint', 'concat', 'uglify', 'less']);
+    grunt.registerTask('watch-all', ['focus']);
 };

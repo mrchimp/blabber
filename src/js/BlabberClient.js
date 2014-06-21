@@ -60,6 +60,16 @@ var BlabberClient = (function (override_options) {
         $.get();
     }
 
+    initVoice();
+
+    $(options.selectors.use_voice_input).on('change', function() {
+        if ($(this).is(':checked')) {
+            enableVoiceIn();
+        } else {
+            disableVoiceIn();
+        }
+    });
+
     // Public Methods
     
     /**
@@ -164,10 +174,11 @@ var BlabberClient = (function (override_options) {
     function onConnect(username) {
         $(options.selectors.connect_btn).removeClass('disconnected').addClass('connected').find('span').text('Connected');
         options.onConnect(username);
+
+        enableVoiceIn();
     }
 
     function onUpdateUsers(userlist) {
-        console.log(userlist);
         $(options.selectors.users_list).empty();
         $.each(userlist, function (username, value) {
             $(options.selectors.users_list).append('<li><a href="#">' + value + '</a></li>');
@@ -212,7 +223,9 @@ var BlabberClient = (function (override_options) {
         appendMessage('SERVER', 'Disconnected');
         $(options.selectors.connect_btn).removeClass('connected').addClass('disconnected').find('span').text('Disconnected');
         options.onDisconnect();
+        disableVoiceIn();
     }
+
 
     // Helpers
 
@@ -291,6 +304,65 @@ var BlabberClient = (function (override_options) {
         }
     }
 
+    function initVoice() {
+        if (annyang) {
+            var commands = {
+                'send': function() {
+                    sendMessage($('#msg_input').val());
+                    $('#msg_input').val('');
+                },
+                '*sentence': function (sentence) {
+                    $('#msg_input').val($('#msg_input').val() + sentence);
+                }
+            };
+
+            annyang.addCommands(commands);
+
+            annyang.addCallback('start', function () {
+                console.log('DEBUG: voice started');
+                $('.voice-input-indicator').css('color', 'red');
+            }, this);
+
+            annyang.addCallback('end', function () {
+                console.log('DEBUG: voice ended');
+                $('.voice-input-indicator').css('color', '#999');
+            }, this);
+
+            annyang.addCallback('error', function () {
+                console.log('DEBUG: voice error!');
+            }, this);
+
+            annyang.addCallback('result', function () {}, this);
+
+            annyang.addCallback('resultMatch', function () {}, this);
+
+            annyang.addCallback('resultNoMatch', function () {}, this);
+
+            annyang.addCallback('errorNetwork', function () {
+                console.log('DEBUG: error network');
+            }, this);
+
+            annyang.addCallback('errorPermissionBlocked', function () {
+                console.log('DEBUG: error permission blocked');
+            }, this);
+
+            annyang.addCallback('errorPermissionDenied', function () {
+                console.log('DEBUG: error permission denied');
+            }, this);
+        }
+    }
+
+    /**
+     * Start listening for voice input
+     */
+    function enableVoiceIn() {
+        annyang.start();
+    }
+
+    function disableVoiceIn() {
+        annyang.abort();
+    }
+
     return {
         connect: connect,
         disconnect: disconnect,
@@ -299,3 +371,4 @@ var BlabberClient = (function (override_options) {
         sendMessage: sendMessage,
     };
 });
+

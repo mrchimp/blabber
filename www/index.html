@@ -2,7 +2,6 @@
 <html>
 <head>
 <title>Blabber</title>
-<link rel="stylesheet" type="text/css" href="bootstrap/css/bootstrap.css">
 <link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
 <body>
@@ -14,33 +13,32 @@
 
   <div class="collapse navbar-collapse pull-right" id="main-menu">
     <ul class="nav navbar-nav">
-      <li><a href="#connect" class="connect disconnected"><i class="glyphicon glyphicon-off icon-white"></i> <span>Connect</span></a></li>
-      <li><a href="#settings-modal" role="button" data-toggle="modal"><i class="glyphicon glyphicon-cog icon-white"></i> Settings</a></li>
+      <li>
+        <a href="#" title="Shows red when voice input is active"><i class="fa fa-microphone toggle-voice voice-input-indicator"></i></a>
+      </li>
+      <!--<li>
+        <a href="#" title="Toggle text to speech"><i class="fa fa-volume-up toggle-voice voice-input-indicator"></i></a>
+      </li>-->
+      <li>
+        <a href="#settings-modal" title="Show settings" role="button" data-toggle="modal"><i class="glyphicon glyphicon-cog icon-white"></i></a>
+      </li>
+      <li>
+        <a href="#userlist-modal" title="Show user list" role="button" data-toggle="modal"><i class="glyphicon glyphicon-user icon-white"></i></a>
+      </li>
+      <li>
+        <a href="#connect" title="Toggle connection" class="connect disconnected"><i class="glyphicon glyphicon-off icon-white"></i></a>
+      </li>
+      <li>
+        <a href="#help-modal" title="Show help" role="button" data-toggle="modal"><i class="fa fa-question-circle icon-white"></i></a>
+      </li>
     </ul>
   </div>
 </nav>
 
 <div class="container-fluid fill">
   <div class="row" id="chat-block">
-    <div class="col-md-9">
+    <div class="col-md-12">
       <div id="conversation" class="well"></div>
-    </div>
-
-    <div class="col-md-3">
-      <!--  data-spy="affix" data-offset-top="60" data-offset-bottom="200" -->
-      <div class="well affix" id="userlist">
-        <h4>
-          <i class="glyphicon glyphicon-user icon-white"></i> 
-          Users 
-          <button class="toggle-userlist pull-right btn btn-sm">
-            <i class="glyphicon glyphicon-chevron-down"></i>
-          </button>
-        </h4>
-
-        <ul id="users">
-          <li><a href="#">Disconnected!</a></li>
-        </ul>
-      </div>
     </div>
   </div>
 
@@ -62,7 +60,7 @@
 </div>
 
 <div id="chat_input">
-  <input class="form-control" type="text" id="msg_input" placeholder="Type here. Press ENTER to send.">
+  <input class="form-control" type="text" id="msg_input" placeholder="Type here or start speaking. Press ENTER or say 'send' to send.">
 </div>
 
 <div class="modal fade" id="settings-modal">
@@ -101,10 +99,39 @@
   </div>
 </div>
 
-<script type="text/javascript" src="js/jquery-1.10.2.min.js"></script>
+<div class="modal fade" id="userlist-modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3>Users</h3>
+      </div>
+      <div class="modal-body">
+        <ul id="users">
+          <li>Disconnected!</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="help-modal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+        <h3>Help</h3>
+      </div>
+      <div class="modal-body">
+        <p>
+          Source is MIT licensed and is <a href="http://github.com/mrchimp/blabber" class="btn btn-primary btn-sm" target="blank">available on Github <i class="fa fa-github"></i></a>
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script type="text/javascript" src="socket.io/socket.io.js"></script>
-<script type="text/javascript" src="bootstrap/js/bootstrap.min.js"></script>
-<script type="text/javascript" src="js/BlabberClient.js"></script>
-<script type="text/javascript" src="js/chat.js"></script>
+<script type="text/javascript" src="js/script.min.js"></script>
 </body>
 </html>
