@@ -153,7 +153,7 @@ function startGUI () {
   screen.append(chat_log);
 
   events.focus();
-  events.setContent("Server started!");
+  events.setContent("Server running on port " + program.port + "!");
   server.start();
   screen.render();
 }
