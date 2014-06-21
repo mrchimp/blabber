@@ -15,7 +15,7 @@
   <div class="collapse navbar-collapse pull-right" id="main-menu">
     <ul class="nav navbar-nav">
       <li><a href="#connect" class="connect disconnected"><i class="glyphicon glyphicon-off icon-white"></i> <span>Connect</span></a></li>
-      <li><a href="#settings" role="button" data-toggle="modal"><i class="glyphicon glyphicon-cog icon-white"></i> Settings</a></li>
+      <li><a href="#settings-modal" role="button" data-toggle="modal"><i class="glyphicon glyphicon-cog icon-white"></i> Settings</a></li>
     </ul>
   </div>
 </nav>
@@ -65,7 +65,7 @@
   <input class="form-control" type="text" id="msg_input" placeholder="Type here. Press ENTER to send.">
 </div>
 
-<div class="modal fade" id="settings">
+<div class="modal fade" id="settings-modal">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
@@ -73,11 +73,23 @@
         <h3>Settings</h3>
       </div>
       <div class="modal-body">
-        <form class="form-horizontal">
+        <form class="form-horizontal" id="settings">
           <div class="control-group">
-            <label class="control-label" for="sound_enabled">Enable Sound</label>
+            <label class="control-label" for="sound_enabled">Enable sound</label>
             <div class="controls">
-              <input type="checkbox" id="sound_enabled" checked>
+              <input type="checkbox" class="sound_enabled" checked="checked">
+            </div>
+          </div>
+          <div class="control-group">
+            <label class="control-label" for="voice_output_enabled">Enable voice output</label>
+            <div class="controls">
+              <input type="checkbox" class="voice_output_enabled">
+            </div>
+          </div>
+          <div class="control-group">
+            <label class="control-label" for="voice_input_enabled">Enable voice input</label>
+            <div class="controls">
+              <input type="checkbox" class="voice_input_enabled">
             </div>
           </div>
         </form>
