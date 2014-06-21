@@ -1,17 +1,15 @@
 var blabber = require('./modules/Blabber.js'),
     program = require('commander'),
-    ent      = require('ent');
+    ent     = require('ent');
 
 program
-  .version('0.1.0')
-  .option('-s, --silent', 'run the server with no interaction')
-  .option('-w, --www  [www]', 'specify the static content directory.', __dirname + '/www')
-  .option('-h, --host [host]', 'specify the host', '0.0.0.0')
-  .option('-p, --port [port]', 'specify the port to serve on', parseInt, 80)
+  .version('0.2.0')
+  .option('-s, --silent', 'run the server with no interaction or GUI')
+  .option('-w, --www  [www]', 'specify the static content directory. Default: www', __dirname + '/www')
+  .option('-p, --port [port]', 'specify the port to serve on. Default: 8080', parseInt, 80)
   .parse(process.argv);
 
 var server = new blabber({
-  server: program.host,
   port: program.port,
   static_dir: program.www
 });
