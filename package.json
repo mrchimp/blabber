@@ -1,9 +1,13 @@
 {
   "name": "blabber",
+  "subdomain": "blabber",
   "description": "browser based chat server and client with websockets",
   "version": "0.2.0",
   "license": "GPL-3.0",
   "homepage": "http://github.com/mrchimp/blabber",
+  "engines": {
+    "node": ">0.10.20"
+  },
   "author": {
     "name": "Jake Gully",
     "email": "chimpytk@gmail.com",
