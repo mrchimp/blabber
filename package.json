@@ -3,6 +3,12 @@
   "description": "browser based chat server and client with websockets",
   "version": "0.2.0",
   "license": "GPL-3.0",
+  "homepage": "http://github.com/mrchimp/blabber",
+  "author": {
+    "name": "Jake Gully",
+    "email": "chimpytk@gmail.com",
+    "url": "http://deviouschimp.co.uk"
+  },
   "keywords": [
     "chat",
     "websockets",
@@ -22,7 +28,7 @@
     "ent": "~0.1.0",
     "validator": "",
     "commander": "",
-    "blessed": "",
+    "blessed": ""
   },
   "devDependencies": {
     "grunt": "~0.4.1",
@@ -32,7 +38,7 @@
     "grunt-contrib-jshint": "~0.10.0",
     "grunt-focus": "~0.1.1",
     "grunt-contrib-less": "~0.11.3",
-    "grunt-contrib-copy": "~0.5.0",
+    "grunt-contrib-copy": "~0.5.0"
   },
   "bugs": {
     "url": "http://github.com/mrchimp/blabber/issues",
