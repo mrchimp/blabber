@@ -6,7 +6,7 @@ program
   .version('0.2.0')
   .option('-s, --silent', 'run the server with no interaction or GUI')
   .option('-w, --www  [www]', 'specify the static content directory. Default: www', __dirname + '/www')
-  .option('-p, --port [port]', 'specify the port to serve on. Default: 8080', parseInt, 80)
+  .option('-p, --port [port]', 'specify the port to serve on. Default: 80', parseInt, 80)
   .parse(process.argv);
 
 var server = new blabber({
