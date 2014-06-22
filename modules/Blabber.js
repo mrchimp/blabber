@@ -13,9 +13,7 @@ module.exports = (function (override_options) {
       http     = require('http'),
       server   = http.createServer(app),
       io       = require('socket.io').listen(server, { log: false }),
-      ent      = require('ent'),
-      check    = require('validator').check,
-      sanitize = require('validator').sanitize;
+      ent      = require('ent');
 
   var options = {
         server: '0.0.0.0',
@@ -47,15 +45,15 @@ module.exports = (function (override_options) {
   }
 
   /**
-   * Attach an even handler
+   * Attach an event handler
    * @return {undefined}
    */
   function on(name, handler) {
-    if (typeof event_handlers[name] === 'array') {
-      event_handlers[name].push(handler);
-    } else {
+    // if (typeof event_handlers[name] === 'array') {
+    //   event_handlers[name].push(handler);
+    // } else {
       event_handlers[name] = [handler];
-    }
+    // }
   }
 
   /**
@@ -142,7 +140,7 @@ module.exports = (function (override_options) {
    * @param {string} room Name of the room
    */
   function getRoom(room) {
-    if (rooms.length == 0) {
+    if (rooms.length === 0) {
       return false;
     }
 
@@ -172,13 +170,14 @@ module.exports = (function (override_options) {
       // because an object is needed to store the lastIndex state.
       var lParenCounter = /\(/g;
       while (lParenCounter.exec(lParens)) {
-        var m;
         // We want m[1] to be greedy, unless a period precedes the
         // right parenthesis.  These tests cannot be simplified as
         //     /(.*)(\.?\).*)/.exec(url)
         // because if (.*) is greedy then \.? never gets a chance.
-        if (m = /(.*)(\.\).*)/.exec(url) ||
-                /(.*)(\).*)/.exec(url)) {
+        var m = /(.*)(\.\).*)/.exec(url) ||
+                /(.*)(\).*)/.exec(url);
+
+        if (m) {
           url = m[1];
           rParens = m[2] + rParens;
         }
@@ -203,7 +202,7 @@ module.exports = (function (override_options) {
 
       var room = getRoom(socket.room_name);
 
-      if (room == false) {
+      if (room === false) {
         console.error('Room not found.');
         return false;
       }
@@ -250,9 +249,7 @@ module.exports = (function (override_options) {
           return false;
       }
 
-      try {
-        check(room_name).is(/^[a-zA-Z0-9-]+$/);
-      } catch (err) {
+      if (!/^[a-zA-Z0-9-]+$/.test(room_name)) {
         log('New user kicked room doesnt match regex: ' + room_name);
         socket.emit('updatechat', 'SERVER', 'Invalid characters in room name ' + room_name + '. Only letters, numbers and the dash (-) character are allowed.');
         socket.disconnect();

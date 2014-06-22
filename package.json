@@ -2,7 +2,7 @@
   "name": "blabber",
   "subdomain": "blabber",
   "description": "browser based chat server and client with websockets",
-  "version": "0.2.0",
+  "version": "0.2.0-2",
   "license": "GPL-3.0",
   "homepage": "http://github.com/mrchimp/blabber",
   "engines": {
@@ -27,12 +27,12 @@
     "start": "node server.js -s"
   },
   "dependencies": {
-    "express": "",
-    "socket.io": "",
+    "express": "~3.4.7",
+    "socket.io": "~0.9.16",
     "ent": "~0.1.0",
-    "validator": "",
-    "commander": "",
-    "blessed": ""
+    "validator": "~3.16.0",
+    "commander": "~2.1.0",
+    "blessed": "~0.0.25"
   },
   "devDependencies": {
     "grunt": "~0.4.1",
