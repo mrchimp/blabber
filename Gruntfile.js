@@ -10,7 +10,10 @@ module.exports = function(grunt) {
 
     var jshint_files = [
         'src/js/BlabberClient.js',
-        'src/js/chat.js'
+        'src/js/main.js',
+        'modules/Blabber.js',
+        'modules/BlabberRoom.js',
+        'modules/BlabberUser.js'
     ];
 
     grunt.initConfig({
@@ -70,7 +73,7 @@ module.exports = function(grunt) {
         watch: {
             js: {
                 files: ['src/js/*.js'],
-                tasks: ['concat', 'uglify'],
+                tasks: ['jshint', 'concat', 'uglify'],
                 options: {
                     nospawn: true
                 }
