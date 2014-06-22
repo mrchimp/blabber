@@ -14,7 +14,7 @@
     "url": "https://github.com/mrchimp/blabber"
   },
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js -s"
   },
   "dependencies": {
     "express": "",
