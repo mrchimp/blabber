@@ -254,7 +254,7 @@ module.exports = (function (override_options) {
         check(room_name).is(/^[a-zA-Z0-9-]+$/);
       } catch (err) {
         log('New user kicked room doesnt match regex: ' + room_name);
-        socket.emit('updatechat', 'SERVER', 'Invalid characters in room name. Only letters, numbers and the dash (-) character are allowed.');
+        socket.emit('updatechat', 'SERVER', 'Invalid characters in room name ' + room_name + '. Only letters, numbers and the dash (-) character are allowed.');
         socket.disconnect();
         return false;
       }

@@ -280,7 +280,7 @@ var BlabberClient = (function (override_options) {
      * Fairly intelligent
      */
     function isConnected () {
-        return (socket ? socket.socket.connected : false);
+        return (socket && socket.socket ? socket.socket.connected : false);
     }
 
     /**
