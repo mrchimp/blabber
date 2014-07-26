@@ -21,7 +21,7 @@ Install a Server
 Run a Server
 ------------
 
-    sudo node blabber.js -p 8080
+    node blabber.js -p 8080
 
  > Note: You will need to run Blabber as root in order to use a port number below 1024, i.e. 80. 
 
