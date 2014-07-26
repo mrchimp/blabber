@@ -3,6 +3,8 @@ Blabber
 
 Real-time instant messaging system featuring text-to-speech and voice recognition. Built with Node JS and web sockets.
 
+[Demo](http://blabber.jit.su)
+
 Requirements
 ------------
 
