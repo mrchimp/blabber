@@ -1,3 +1,5 @@
+#!/usr/bin/env node
+
 var blabber = require('./modules/Blabber.js'),
     program = require('commander'),
     ent     = require('ent');

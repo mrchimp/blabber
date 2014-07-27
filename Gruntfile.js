@@ -72,7 +72,7 @@ module.exports = function(grunt) {
         },
         watch: {
             js: {
-                files: ['src/js/*.js'],
+                files: ['src/js/main.js', 'src/js/BlabberClient.js'],
                 tasks: ['jshint', 'concat', 'uglify'],
                 options: {
                     nospawn: true

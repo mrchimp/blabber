@@ -18,7 +18,8 @@ module.exports = (function (override_options) {
   var options = {
         server: '0.0.0.0',
         port: 80,
-        static_dir: __dirname + '/www'
+        static_dir: __dirname + '/www',
+        server_color: '#B00'
       },
       rooms = [],
       event_handlers = {},
@@ -28,6 +29,7 @@ module.exports = (function (override_options) {
         'admin',
         'mod',
         'moderator',
+        'system'
       ];
 
   options = extend(options, override_options);
@@ -108,7 +110,10 @@ module.exports = (function (override_options) {
 
     // get list of usernames
     for (var x = 0; x < users.length; x++) {
-      usernames.push(users[x].getName());
+      usernames.push({
+        name: users[x].getName(),
+        color: users[x].getColor()
+      });
     }
     
     // send out to each user
@@ -198,8 +203,15 @@ module.exports = (function (override_options) {
 
   io.sockets.on('connection', function (socket) {
 
-    function sayToRoom(author, message) {
-
+    /**
+     * Send a message (trigger "updatechat") to everyone in
+     * socket's room.
+     * @param  {String} author_name  Name of person sending message
+     * @param  {String} message      The message to send
+     * @param  {String} author_color Hex color value (including #)
+     * @return {Mixed}               False if can't find room
+     */
+    function sayToRoom(author_name, message, author_color) {
       var room = getRoom(socket.room_name);
 
       if (room === false) {
@@ -208,24 +220,29 @@ module.exports = (function (override_options) {
       }
 
       for (var i = 0; i < room.users.length; i++) {
-        room.users[i].socket.emit('updatechat', author, message);
+        room.users[i].socket.emit('updatechat', author_name, message, author_color);
       }
 
-      // trigger('message', '  '+ author + ' in ' + socket.room_name + ' says ' + message);
       trigger('message', {
         message: message,
-        author: author,
+        author: author_name,
+        author_color: author_color,
         room_name: socket.room_name
       });
     }
 
+    /**
+     * Handle slash commands, i.e. non-chat messages
+     * @param  {String} action  The command to perform
+     * @param  {String} message The full message
+     */
     function doAction(action, message) {
       switch (action) {
         case '/help':
-          socket.emit('updatechat', 'SERVER', 'Are you having problems?');
+          socket.emit('updatechat', 'SERVER', 'Are you having problems?', options.server_color);
           break;
         default:
-          socket.emit('updatechat', 'SERVER', ent.encode(action)+' is not a command.');
+          socket.emit('updatechat', 'SERVER', ent.encode(action)+' is not a command.', options.server_color);
       }
     }
 
@@ -235,37 +252,40 @@ module.exports = (function (override_options) {
      * @param  {string} room_name The name of the room they are trying to join
      */
     socket.on('adduser', function(username, room_name){
+      var room,
+          user;
+
       if (typeof username !== 'string') {
           log('New user kicked for invalid Username: ' + username);
-          socket.emit('updatechat', 'SERVER', 'Invalid username.');
+          socket.emit('updatechat', 'SERVER', 'Invalid username.', options.server_color);
           socket.disconnect();
           return false;
       }
 
       if (typeof room_name !== 'string') {
           log('New user kicked for invalid room: ' + room_name);
-          socket.emit('updatechat', 'SERVER', 'Invalid room.');
+          socket.emit('updatechat', 'SERVER', 'Invalid room.', options.server_color);
           socket.disconnect();
           return false;
       }
 
       if (!/^[a-zA-Z0-9-]+$/.test(room_name)) {
         log('New user kicked room doesnt match regex: ' + room_name);
-        socket.emit('updatechat', 'SERVER', 'Invalid characters in room name ' + room_name + '. Only letters, numbers and the dash (-) character are allowed.');
+        socket.emit('updatechat', 'SERVER', 'Invalid characters in room name ' + room_name + '. Only letters, numbers and the dash (-) character are allowed.', options.server_color);
         socket.disconnect();
         return false;
       }
 
       username = ent.encode(username);
 
-      if (arrayContains(username, reserved_names)) {
+      if (arrayContains(username.toLowerCase(), reserved_names)) {
         log('New user kicked for reserved name: ' + username);
-        socket.emit('updatechat', 'SERVER', 'That username is reserved.');
+        socket.emit('updatechat', 'SERVER', 'That username is reserved.', 'options.server_color');
         socket.disconnect();
         return false;
       }
 
-      var room = getRoom(room_name);
+      room = getRoom(room_name);
 
       if (!room) {
         room = new Room({
@@ -277,7 +297,7 @@ module.exports = (function (override_options) {
 
       if (typeof room.users[username] !== 'undefined') {
         log('New user kicked. User "' + username + '" already exists.');
-        socket.emit('updatechat', 'SERVER', 'That username exists.');
+        socket.emit('updatechat', 'SERVER', 'That username exists.', 'options.server_color');
         socket.disconnect();
         return false;
       }
@@ -290,23 +310,25 @@ module.exports = (function (override_options) {
       //     return false;
       // }
 
-      socket.username = username;
-      socket.room_name = room_name;
-
       // Create a user
-      var user = new User({
+      user = new User({
           name: username,
           socket: socket,
           room_name: room_name
       });
+
+      socket.username = username;
+      socket.user = user;
+      socket.room_name = room_name;
 
       // Add user to list of all users
       room.addUser(user);
 
       // Tell people what just happened
       log('+ ' + username + ' joined ' + room_name);
-      sayToRoom('SERVER', username + ' has connected');
-      socket.emit('updatechat', 'SERVER', 'Greetings! You are in "' + room_name + '" with ' + (room.users.length - 1) + ' other people.');
+
+      sayToRoom('SERVER', username + ' has connected', options.server_color);
+      socket.emit('updatechat', 'SERVER', 'Greetings! You are in "' + room_name + '" with ' + (room.users.length - 1) + ' other people.', options.server_color);
 
       trigger('update_room_list', {
         rooms: getRoomNames()
@@ -320,9 +342,11 @@ module.exports = (function (override_options) {
      * @param  {string} message The user's message 
      */
     socket.on('sendchat', function (message) {
+      var action;
+
       if (message[0] === '/') {
-        socket.emit('updatechat', ent.encode(socket.username), message);
-        var action = message.split(' ')[0];
+        socket.emit('updatechat', ent.encode(socket.username), message, socket.username, socket.user.getColor());
+        action = message.split(' ')[0];
         doAction(action, message);
         return true;
       }
@@ -330,20 +354,22 @@ module.exports = (function (override_options) {
       message = ent.encode(message);
       message = linkify(message);
       
-      sayToRoom(socket.username, message);
+      sayToRoom(socket.username, message, socket.user.getColor());
     });
     
     /**
      * Triggered when a user actively or passively disconnects
      */
-    socket.on('disconnect', function(){
+    socket.on('disconnect', function (){
+      var room;
+
       if (socket.username) {
-        var room = getRoom(socket.room_name);
+        room = getRoom(socket.room_name);
         
         room.removeUser(socket.username);
         log('- ' + socket.username + ' disconnected.');
         updateUserList(room.getName());
-        socket.broadcast.emit('updatechat', 'SERVER', socket.username + ' has disconnected');
+        socket.broadcast.emit('updatechat', 'SERVER', socket.username + ' has disconnected', options.server_color);
       }
 
       trigger('update_room_list', {

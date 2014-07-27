@@ -14,7 +14,7 @@ var BlabberClient = (function (override_options) {
             connect_btn: '.connect',
             conversation: '#conversation',
             use_sound: '#settings .sound_enabled',
-            use_voice_output: '#settings .voice_output_enabled',
+            use_voice_output: '#sllettings .voice_output_enabled',
             use_voice_input: '#settings .voice_input_enabled',
         },
         onConnect: function (username) {},
@@ -70,14 +70,15 @@ var BlabberClient = (function (override_options) {
         }
     });
 
+
     // Public Methods
     
     /**
      * Connect to the server
      * @return {boolean} True if successfully connected
      */
-    function connect(new_name, new_room) {
-        appendMessage('CONNECTING', 'Please be patient...<br>');
+    function connect (new_name, new_room) {
+        appendMessage('SYSTEM', 'Connecting. Please be patient...<br>');
 
         if (isConnected()) { 
             error = 'Already connected.';
@@ -111,7 +112,7 @@ var BlabberClient = (function (override_options) {
      * @param  {string} msg
      * @return {boolean}
      */
-    function disconnect(msg) {
+    function disconnect (msg) {
         if (!msg) {
             msg = 'Goodbye!';
         }
@@ -122,7 +123,7 @@ var BlabberClient = (function (override_options) {
     /**
      * If disconnected then connect...
      */
-    function toggleConnect(new_name) {
+    function toggleConnect (new_name) {
         if (isConnected()) {
             console.log('DEBUG: Toggle disconnecting...');
             disconnect();
@@ -141,7 +142,7 @@ var BlabberClient = (function (override_options) {
      */
     function sendMessage (message) {
         if (!isConnected()) {
-            appendMessage('ERROR', err.message + '<br>');
+            appendMessage('SYSTEM', 'Error: ' + err.message + '<br>');
         }
         socket.emit('sendchat', message);
     }
@@ -149,8 +150,10 @@ var BlabberClient = (function (override_options) {
     /**
      * Write a message to the screen
      */
-    function appendMessage (username, message) {
+    function appendMessage (username, message, color) {
         var currentdate = new Date(),
+            username_elem,
+            message_elem,
             datetime = currentdate.getFullYear() + "/" + 
                        zeroPad(currentdate.getMonth() + 1, 2) + "/" + 
                        zeroPad(currentdate.getDate(), 2) + " " + 
@@ -160,43 +163,49 @@ var BlabberClient = (function (override_options) {
 
         message = linkify(message);
 
-        $('<p />')
+        username_elem = $('<b />')
+            .css('color', color)
+            .html(username);
+
+        message_elem = $('<p />')
             .attr('title', 'Message sent ' + datetime)
-            .html('<b>' + username + ':</b> ' + message)
+            .html(username_elem)
+            .append(': ' + message)
             .appendTo(options.selectors.conversation);
+
         $('body').scrollTop($('body')[0].scrollHeight);
     }
 
-    
 
     // Event handlers    
 
-    function onConnect(username) {
+    function onConnect (username) {
         $(options.selectors.connect_btn).removeClass('disconnected').addClass('connected').find('span').text('Connected');
         options.onConnect(username);
 
         enableVoiceIn();
     }
 
-    function onUpdateUsers(userlist) {
+    function onUpdateUsers (userlist) {
+        console.log('got user list');
+        console.log(userlist);
         $(options.selectors.users_list).empty();
-        $.each(userlist, function (username, value) {
-            $(options.selectors.users_list).append('<li><a href="#">' + value + '</a></li>');
+        $.each(userlist, function (index, user) {
+            $(options.selectors.users_list).append('<li><a href="#" style="color:' + user.color + '">' + user.name + '</a></li>');
         });
     }
 
-    function onMessage(username, message) {
+    function onMessage (username, message, user_color) {
         if (username !== 'SERVER' && username !== socket.username) {
             showAlert(username + ' said something.');
             makeNoise();
         }
 
-        speakMessage(username + ' says: ' + message);
-
-        appendMessage(username, message);
+        speakMessage('<span style="color:' + user_color + '">' + username + '</span> says: ' + message);
+        appendMessage(username, message, user_color);
     }
 
-    function speakMessage(msg) {
+    function speakMessage (msg) {
         var utterance;
 
         if (!useVoice()) {
@@ -211,16 +220,8 @@ var BlabberClient = (function (override_options) {
         window.speechSynthesis.speak(utterance);
     }
 
-    /**
-     * Check browser capabilities and user settings. 
-     * @return {Boolean} true if voice can && should be used.
-     */
-    function useVoice() {
-        return (voice_supported && $(options.selectors.use_voice_output).is(':checked'));
-    }
-
-    function onDisconnect() {
-        appendMessage('SERVER', 'Disconnected');
+    function onDisconnect () {
+        appendMessage('SYSTEM', 'Disconnected');
         $(options.selectors.connect_btn).removeClass('connected').addClass('disconnected').find('span').text('Disconnected');
         options.onDisconnect();
         disableVoiceIn();
@@ -230,11 +231,19 @@ var BlabberClient = (function (override_options) {
     // Helpers
 
     /**
+     * Check browser capabilities and user settings. 
+     * @return {Boolean} true if voice can && should be used.
+     */
+    function useVoice () {
+        return (voice_supported && $(options.selectors.use_voice_output).is(':checked'));
+    }
+    
+    /**
      * By MikeMestnik: http://stackoverflow.com/questions/19547008/how-to-replace-plain-urls-with-links-with-example/19708150#19708150
      * @param  {string} text The text to be searched fro URLs.
      * @return {string}      The text with URLs replaced
      */
-    function linkify(text) {
+    function linkify (text) {
         var re = /(\(.*?)?\b((?:https?|ftp|file):\/\/[-a-z0-9+&@#\/%?=~_()|!:,.;]*[-a-z0-9+&@#\/%=~_()|])/ig;
         return text.replace(re, function(match, lParens, url) {
             var rParens = '';
@@ -286,7 +295,7 @@ var BlabberClient = (function (override_options) {
     /**
      * Flash a message in the title bar
      */
-    function showAlert(message) {
+    function showAlert (message) {
         clearTimeout(alert_timeout);
         document.title = message;
         alert_timeout = window.setTimeout(function () {
@@ -298,13 +307,13 @@ var BlabberClient = (function (override_options) {
     /** 
      * If we're allowed & able, make a sound.
      */
-    function makeNoise() {
+    function makeNoise () {
         if (audio_supported && $(options.selectors.use_sound).is(':checked')) {
             $new_msg_sound.get(0).play();
         }
     }
 
-    function initVoice() {
+    function initVoice () {
         if (annyang) {
             var commands = {
                 'send': function() {
@@ -355,11 +364,11 @@ var BlabberClient = (function (override_options) {
     /**
      * Start listening for voice input
      */
-    function enableVoiceIn() {
+    function enableVoiceIn () {
         annyang.start();
     }
 
-    function disableVoiceIn() {
+    function disableVoiceIn () {
         annyang.abort();
     }
 
