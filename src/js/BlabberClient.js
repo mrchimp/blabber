@@ -237,7 +237,7 @@ var BlabberClient = (function (override_options) {
     function useVoice () {
         return (voice_supported && $(options.selectors.use_voice_output).is(':checked'));
     }
-    
+
     /**
      * By MikeMestnik: http://stackoverflow.com/questions/19547008/how-to-replace-plain-urls-with-links-with-example/19708150#19708150
      * @param  {string} text The text to be searched fro URLs.

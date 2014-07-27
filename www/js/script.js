@@ -11380,7 +11380,7 @@ var BlabberClient = (function (override_options) {
     function useVoice () {
         return (voice_supported && $(options.selectors.use_voice_output).is(':checked'));
     }
-    
+
     /**
      * By MikeMestnik: http://stackoverflow.com/questions/19547008/how-to-replace-plain-urls-with-links-with-example/19708150#19708150
      * @param  {string} text The text to be searched fro URLs.
@@ -11813,6 +11813,21 @@ $(document).ready(function () {
         port: 80,
         voice: false
     });
+
+    // Get QueryString
+    var QueryString = [], hash;
+    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+    for(var i = 0; i < hashes.length; i++) {
+        hash = hashes[i].split('=');
+        QueryString.push(hash[0]);
+        QueryString[hash[0]] = hash[1];
+    }
+
+    if (typeof QueryString.room === 'string') {
+        $('#welcome input[name="room"]').val(QueryString.room).attr('type', 'hidden').parent('.form-group').hide();
+    }
+console.log(QueryString);
+console.log(hashes);
 
     $('#msg_input').keypress(function (e) {
         if (e.which === 13) { // Enter

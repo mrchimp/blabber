@@ -25,6 +25,21 @@ $(document).ready(function () {
         voice: false
     });
 
+    // Get QueryString
+    var QueryString = [], hash;
+    var hashes = window.location.href.slice(window.location.href.indexOf('?') + 1).split('&');
+    for(var i = 0; i < hashes.length; i++) {
+        hash = hashes[i].split('=');
+        QueryString.push(hash[0]);
+        QueryString[hash[0]] = hash[1];
+    }
+
+    if (typeof QueryString.room === 'string') {
+        $('#welcome input[name="room"]').val(QueryString.room).attr('type', 'hidden').parent('.form-group').hide();
+    }
+console.log(QueryString);
+console.log(hashes);
+
     $('#msg_input').keypress(function (e) {
         if (e.which === 13) { // Enter
             blab.sendMessage($('#msg_input').val());
