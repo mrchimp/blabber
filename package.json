@@ -33,7 +33,8 @@
     "validator": "~3.16.0",
     "commander": "~2.1.0",
     "blessed": "~0.0.25",
-    "randomcolor": "~0.1.1"
+    "randomcolor": "~0.1.1",
+    "surly" : "git://github.com/mrchimp/surly.git"
   },
   "devDependencies": {
     "grunt": "~0.4.1",

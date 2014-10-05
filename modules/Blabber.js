@@ -13,14 +13,19 @@ module.exports = (function (override_options) {
       http     = require('http'),
       server   = http.createServer(app),
       io       = require('socket.io').listen(server, { log: false }),
-      ent      = require('ent');
+      ent      = require('ent'),
+      surly    = require('surly');
 
   var options = {
         server: '0.0.0.0',
         port: 80,
         static_dir: __dirname + '/www',
-        server_color: '#B00'
+        server_color: '#B00',
+        bot_name: 'Surly',
+        bot_color: '#00B',
+        aiml_dir: 'node_modules/surly/aiml'
       },
+      bot =  new surly(),
       rooms = [],
       event_handlers = {},
       reserved_names = [
@@ -33,6 +38,9 @@ module.exports = (function (override_options) {
       ];
 
   options = extend(options, override_options);
+
+  bot.loadAimlDir(options.aiml_dir);
+  reserved_names.push(options.bot_name);
 
   function log(message) {
     trigger('log', {message: message});
@@ -100,7 +108,10 @@ module.exports = (function (override_options) {
    * @return {undefined}
    */
   function updateUserList(room_name) {
-    var usernames = [],
+    var usernames = [{
+          name: options.bot_name,
+          color: options.bot_color
+        }],
         room = getRoom(room_name),
         users = room.getUsers();
 
@@ -342,7 +353,9 @@ module.exports = (function (override_options) {
      * @param  {string} message The user's message 
      */
     socket.on('sendchat', function (message) {
-      var action;
+      var action,
+          bot_msg = false,
+          clean_message;
 
       if (message[0] === '/') {
         socket.emit('updatechat', ent.encode(socket.username), message, socket.username, socket.user.getColor());
@@ -351,10 +364,19 @@ module.exports = (function (override_options) {
         return true;
       }
 
-      message = ent.encode(message);
-      message = linkify(message);
+      if (message.substr(0,options.bot_name.length + 1).toLowerCase() === options.bot_name.toLowerCase() + ':') {
+        bot_msg = true;
+      }
+
+      clean_message = ent.encode(message);
+      clean_message = linkify(clean_message);
       
-      sayToRoom(socket.username, message, socket.user.getColor());
+      sayToRoom(socket.username, clean_message, socket.user.getColor());
+
+      if (bot_msg) {
+        log('Bot message!');
+        sayToRoom(options.bot_name, bot.talk(message.substr(options.bot_name.length + 1).trim()), options.bot_color);
+      }
     });
     
     /**

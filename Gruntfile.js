@@ -3,8 +3,8 @@ module.exports = function(grunt) {
     var js_files = [
         'bower_components/jquery/dist/jquery.js',
         'bower_components/bootstrap/dist/js/bootstrap.js',
-        'src/js/BlabberClient.js',
         'bower_components/annyang/annyang.js',
+        'src/js/BlabberClient.js',
         'src/js/main.js'
     ];
 
@@ -73,7 +73,7 @@ module.exports = function(grunt) {
         watch: {
             js: {
                 files: ['src/js/main.js', 'src/js/BlabberClient.js'],
-                tasks: ['jshint', 'concat', 'uglify'],
+                tasks: ['concat', 'uglify', 'jshint'],
                 options: {
                     nospawn: true
                 }
@@ -96,6 +96,6 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-focus');
 
-    grunt.registerTask('default', ['jshint', 'concat', 'uglify', 'less']);
+    grunt.registerTask('default', ['concat', 'uglify', 'less', 'jshint']);
     grunt.registerTask('watch-all', ['focus']);
 };

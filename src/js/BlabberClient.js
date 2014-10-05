@@ -31,8 +31,12 @@ var BlabberClient = (function (override_options) {
     $new_msg_sound = document.createElement('audio'),
     audio_supported = !!($new_msg_sound.canPlayType),
     voice_supported = 'speechSynthesis' in window,
-    voices = window.speechSynthesis.getVoices(),
+    voices,
     server_url;
+    
+    if (voice_supported) {
+        voices = window.speechSynthesis.getVoices();
+    }
 
     $.extend(options, override_options);
 
@@ -64,7 +68,9 @@ var BlabberClient = (function (override_options) {
 
     $(options.selectors.use_voice_input).on('change', function() {
         if ($(this).is(':checked')) {
-            enableVoiceIn();
+            if (voice_supported) {
+                enableVoiceIn();
+            }
         } else {
             disableVoiceIn();
         }
@@ -365,11 +371,15 @@ var BlabberClient = (function (override_options) {
      * Start listening for voice input
      */
     function enableVoiceIn () {
-        annyang.start();
+        if (voice_supported) {
+            annyang.start();
+        }
     }
 
     function disableVoiceIn () {
-        annyang.abort();
+        if (voice_supported) {
+            annyang.abort();
+        }
     }
 
     return {
@@ -380,4 +390,3 @@ var BlabberClient = (function (override_options) {
         sendMessage: sendMessage,
     };
 });
-
