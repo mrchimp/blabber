@@ -14,7 +14,7 @@ var BlabberClient = (function (override_options) {
             connect_btn: '.connect',
             conversation: '#conversation',
             use_sound: '#settings .sound_enabled',
-            use_voice_output: '#sllettings .voice_output_enabled',
+            use_voice_output: '#settings .voice_output_enabled',
             use_voice_input: '#settings .voice_input_enabled',
         },
         onConnect: function (username) {},
