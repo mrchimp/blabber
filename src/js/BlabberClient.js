@@ -91,8 +91,9 @@ var BlabberClient = (function (override_options) {
             return false; 
         }
 
-        var username = new_name;
-        room = new_room;
+        var that = this,
+            username = new_name;
+            room = new_room;
 
         if (!username || typeof username !== 'string') {
             return false;
@@ -108,9 +109,31 @@ var BlabberClient = (function (override_options) {
             onConnect(username);
             socket.emit('adduser', username, room);
         });
-        socket.on('updateusers', onUpdateUsers);
-        socket.on('updatechat', onMessage);
-        socket.on('disconnect', onDisconnect);
+        socket.on('updateusers', function (userlist) {
+            $(options.selectors.users_list).empty();
+            $.each(userlist, function (index, user) {
+                $(options.selectors.users_list).append('<li><a href="#" style="color:' + user.color + '">' + user.name + '</a></li>');
+            });
+        });
+        socket.on('updatechat', function (msg_username, message, user_color) {
+            if (msg_username !== 'SERVER' && msg_username !== username) {
+                showAlert(msg_username + ' said something.');
+
+                if (useVoice()) {
+                    speakMessage(msg_username + ' says: ' + message);
+                } else {
+                    makeNoise();
+                }
+            }
+
+            appendMessage(msg_username, message, user_color);
+        });
+        socket.on('disconnect', function onDisconnect () {
+            appendMessage('SYSTEM', 'Disconnected');
+            $(options.selectors.connect_btn).removeClass('connected').addClass('disconnected').find('span').text('Disconnected');
+            options.onDisconnect();
+            disableVoiceIn();
+        });
     }
 
     /**
@@ -156,7 +179,7 @@ var BlabberClient = (function (override_options) {
     /**
      * Write a message to the screen
      */
-    function appendMessage (username, message, color) {
+    function appendMessage (msg_username, message, color) {
         var currentdate = new Date(),
             username_elem,
             message_elem,
@@ -171,7 +194,7 @@ var BlabberClient = (function (override_options) {
 
         username_elem = $('<b />')
             .css('color', color)
-            .html(username);
+            .html(msg_username);
 
         message_elem = $('<p />')
             .attr('title', 'Message sent ' + datetime)
@@ -185,30 +208,11 @@ var BlabberClient = (function (override_options) {
 
     // Event handlers    
 
-    function onConnect (username) {
+    function onConnect (theusername) {
         $(options.selectors.connect_btn).removeClass('disconnected').addClass('connected').find('span').text('Connected');
-        options.onConnect(username);
+        options.onConnect(theusername);
 
         enableVoiceIn();
-    }
-
-    function onUpdateUsers (userlist) {
-        console.log('got user list');
-        console.log(userlist);
-        $(options.selectors.users_list).empty();
-        $.each(userlist, function (index, user) {
-            $(options.selectors.users_list).append('<li><a href="#" style="color:' + user.color + '">' + user.name + '</a></li>');
-        });
-    }
-
-    function onMessage (username, message, user_color) {
-        if (username !== 'SERVER' && username !== socket.username) {
-            showAlert(username + ' said something.');
-            makeNoise();
-        }
-
-        speakMessage('<span style="color:' + user_color + '">' + username + '</span> says: ' + message);
-        appendMessage(username, message, user_color);
     }
 
     function speakMessage (msg) {
@@ -224,13 +228,6 @@ var BlabberClient = (function (override_options) {
         utterance.pitch = 2;
         utterance.text = msg;
         window.speechSynthesis.speak(utterance);
-    }
-
-    function onDisconnect () {
-        appendMessage('SYSTEM', 'Disconnected');
-        $(options.selectors.connect_btn).removeClass('connected').addClass('disconnected').find('span').text('Disconnected');
-        options.onDisconnect();
-        disableVoiceIn();
     }
 
 

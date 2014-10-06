@@ -37,8 +37,6 @@ $(document).ready(function () {
     if (typeof QueryString.room === 'string') {
         $('#welcome input[name="room"]').val(QueryString.room).attr('type', 'hidden').parent('.form-group').hide();
     }
-console.log(QueryString);
-console.log(hashes);
 
     $('#msg_input').keypress(function (e) {
         if (e.which === 13) { // Enter

@@ -339,7 +339,7 @@ module.exports = (function (override_options) {
       log('+ ' + username + ' joined ' + room_name);
 
       sayToRoom('SERVER', username + ' has connected', options.server_color);
-      socket.emit('updatechat', 'SERVER', 'Greetings! You are in "' + room_name + '" with ' + (room.users.length - 1) + ' other people.', options.server_color);
+      socket.emit('updatechat', 'SERVER', 'Greetings! You are in "' + room_name + '" with ' + room.users.length + ' other people.', options.server_color);
 
       trigger('update_room_list', {
         rooms: getRoomNames()
