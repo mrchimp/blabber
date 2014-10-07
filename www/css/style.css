@@ -7826,8 +7826,6 @@ body {
 .container-fluid {
   margin: 0 15px;
 }
-@media (max-width: 480px) {
-  #main-menu {
-    width: 100%;
-  }
+.navbar-toggle {
+  padding: 9px 10px 3px;
 }
