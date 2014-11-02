@@ -50,8 +50,13 @@ module.exports = (function (override_options) {
    * Start the server
    */
   function start() {
-    server.listen(options.port, options.server);
     app.use(express.static(options.static_dir));
+
+    server.on('listening',function(){
+      log('[event] Server is listening');
+    });
+
+    server.listen(options.port);
   }
 
   /**
