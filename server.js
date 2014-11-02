@@ -159,7 +159,11 @@ function startGUI () {
 }
 
 if (program.silent) {
+  console.log('silent');
   startSilent();
 } else {
+  console.log('gui');
   startGUI();
 }
+
+console.log('Goodbye!');
