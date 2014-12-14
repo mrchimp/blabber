@@ -2,7 +2,7 @@
   "name": "blabber",
   "subdomain": "blabber",
   "description": "browser based chat server and client with websockets",
-  "version": "0.4.0-2",
+  "version": "0.4.1",
   "license": "GPL-3.0",
   "homepage": "http://github.com/mrchimp/blabber",
   "engines": {

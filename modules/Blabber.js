@@ -381,6 +381,9 @@ module.exports = (function (override_options) {
       }
 
       clean_message = ent.encode(message);
+      
+      log('[chat] ' + socket.username + ': ' + message);
+
       clean_message = linkify(clean_message);
       
       sayToRoom(socket.username, clean_message, socket.user.getColor());
