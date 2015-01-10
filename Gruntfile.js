@@ -3,6 +3,8 @@ module.exports = function(grunt) {
     var js_files = [
         'bower_components/jquery/dist/jquery.js',
         'bower_components/bootstrap/dist/js/bootstrap.js',
+        'bower_components/underscore/underscore.js',
+        'bower_components/backbone/backbone.js',
         'bower_components/annyang/annyang.js',
         'src/js/BlabberClient.js',
         'src/js/main.js'
@@ -21,7 +23,7 @@ module.exports = function(grunt) {
         concat: {
             dist: {
                 src: js_files,
-                dest: 'www/js/script.js'
+                dest: 'www/js/script.min.js'
             }
         },
         uglify: {
@@ -73,7 +75,7 @@ module.exports = function(grunt) {
         watch: {
             js: {
                 files: ['src/js/main.js', 'src/js/BlabberClient.js'],
-                tasks: ['concat', 'uglify', 'jshint'],
+                tasks: ['concat', 'jshint'],
                 options: {
                     nospawn: true
                 }
