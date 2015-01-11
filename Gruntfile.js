@@ -68,7 +68,7 @@ module.exports = function(grunt) {
                         dest: 'www/fonts/',
                         flatten: true,
                         filter: 'isFile'
-                    },
+                    }
                 ]
             }
         },
