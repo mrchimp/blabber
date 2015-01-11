@@ -14,7 +14,7 @@ module.exports = (function (override_options) {
       server  = http.createServer(app),
       io      = require('socket.io').listen(server, { log: false }),
       ent     = require('ent'),
-      surly   = require('surly'),
+      Surly   = require('surly'),
       Logger  = require('./logger');
 
   var options = {
@@ -27,7 +27,7 @@ module.exports = (function (override_options) {
         aiml_dir:     'node_modules/surly/aiml',
         log_file:     'logs/blabber.log',
       },
-      bot = new surly(),
+      bot = new Surly(),
       rooms = [],
       event_handlers = {},
       reserved_names = [

@@ -3,12 +3,10 @@
  *
  * http://github.com/mrchimp/blabber
  */
-
 var BlabberClient = (function (override_options) {
-
     var options = {
         server: 'http://' + window.location.hostname,
-        port:   80,
+        port: 80,
         selectors: {
             users_list: '#users',
             connect_btn: '.connect',
@@ -33,7 +31,66 @@ var BlabberClient = (function (override_options) {
     voice_supported = 'speechSynthesis' in window,
     voices,
     server_url;
-    
+
+    var SoundSettings = Backbone.Model.extend({
+        defaults: {
+            voice_in_enabled: false,
+            voice_out_enabled: false,
+            sound_enabled: false,
+            voice_in_available: true,
+            voice_out_available: true,
+            voice_in_class: '',
+            voice_out_class: ''
+        },
+        initialize: function () {
+            this.on('change:sound_enabled', this.onChangeSound, this);
+            this.on('change:voice_in_available', this.updateClasses, this);
+            this.on('change:voice_in_enabled', this.updateClasses, this);
+            this.on('change:voice_out_available', this.updateClasses, this);
+            this.on('change:voice_out_enabled', this.updateClasses, this);
+            this.set('voice_in_available', !!annyang);
+            this.set('voice_out_available', 'speechSynthesis' in window);
+        },
+        onChangeSound: function (model, sound_enabled) {
+            console.log('sound enabled: ', sound_enabled);
+        },
+        updateClasses: function (mode, voice_in_enabled) {
+            this.set('voice_in_class', (this.get('voice_in_enabled') ? 'enabled' : 'disabled') + ' ' + (this.get('voice_in_available') ? 'available' : 'unavailable'));
+            this.set('voice_out_class', (this.get('voice_out_enabled') ? 'enabled' : 'disabled') + ' ' + (this.get('voice_out_available') ? 'available' : 'unavailable'));
+        }
+    });
+
+    var SoundSettingsView = Backbone.View.extend({
+        tagName: 'div',
+        className: 'settings-form',
+        template: _.template($('#sound-settings-modal-template').html()),
+        events: {
+            'click .setting-voice-out': 'onToggleVoiceOutEnabled',
+            'click .setting-voice-in': 'onToggleVoiceInEnabled'
+        },
+        initialize: function () {
+            this.listenTo(this.model, "change", this.render);
+        },
+        render: function () {
+            console.debug('Rendering settings view');
+            this.$el.html(this.template(this.model.attributes));
+            return this;
+        },
+        onToggleVoiceOutEnabled: function() {
+            this.model.set('voice_out_enabled', !this.model.get('voice_out_enabled'));
+        },
+        onToggleVoiceInEnabled: function() {
+            this.model.set('voice_in_enabled', !this.model.get('voice_in_enabled'));
+        }
+    });
+
+    var sound_settings = new SoundSettings(),
+    sound_settings_view = new SoundSettingsView({
+        el: $('#sound-settings-modal-body'),
+        model: sound_settings,
+        id: 'sound-settings-modal-body'
+    });
+
     if (voice_supported) {
         voices = window.speechSynthesis.getVoices();
     }
@@ -75,6 +132,18 @@ var BlabberClient = (function (override_options) {
             disableVoiceIn();
         }
     });
+
+
+    $('.setting-voice-in').on('click', function () {
+        sound_settings.toggleVoiceInEnabled();
+    });
+
+    $('.setting-voice-out').on('click', function () {
+        sound_settings.toggleVoiceOutEnabled();
+    });
+
+    sound_settings_view.render();
+
 
 
     // Public Methods

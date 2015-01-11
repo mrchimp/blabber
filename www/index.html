@@ -9,54 +9,40 @@
 <link rel="stylesheet" type="text/css" href="css/style.css">
 </head>
 <body>
-<nav class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+<nav class="navbar navbar-inverse navbar-fixed-left" role="navigation">
   <div class="container-fluid">
     <div class="navbar-header">
-      <a class="navbar-brand pull-left" href="#">Blabber</a>
       <a class="btn btn-primary navbar-toggle" data-toggle="collapse" data-target="#main-menu"><i class="glyphicon glyphicon-chevron-down"></i></a>
     </div>
 
     <div class="collapse navbar-collapse pull-left">
     <ul class="nav navbar-nav">
       <li>
+        <a href="#connect" title="Toggle connection" class="connect disconnected">
+          <i class="glyphicon glyphicon-off icon-white"></i> <span class="visible-xs-inline">Connection</span>
+        </a>
+      </li>
+      <li>
         <a href="#" title="Shows red when voice input is active">
           <i class="fa fa-microphone toggle-voice voice-input-indicator"></i>
         </a>
       </li>
       <li>
-        <a href="#" title="Toggle text to speech"><i class="fa fa-volume-up toggle-voice voice-input-indicator"></i></a>
+        <a href="#sound-settings-modal" title="Show sound settings" role="button" data-toggle="modal">
+          <i class="fa fa-volume-up icon-white"></i> <span class="visible-xs-inline">Settings</span>
+        </a>
+      </li>
+      <li>
+        <a href="#userlist-modal" title="Show user list" role="button" data-toggle="modal">
+          <i class="glyphicon glyphicon-user icon-white"></i> <span class="visible-xs-inline">User List</span>
+        </a>
+      </li>
+      <li>
+        <a href="#help-modal" title="Show help" role="button" data-toggle="modal">
+          <i class="fa fa-question-circle icon-white"></i> <span class="visible-xs-inline">Help</span>
+        </a>
       </li>
     </ul>
-    </div>
-
-    <div class="collapse navbar-collapse pull-right" id="main-menu">
-      <ul class="nav navbar-nav">
-        <li>
-          <a href="#connect" title="Toggle connection" class="connect disconnected">
-            <i class="glyphicon glyphicon-off icon-white"></i> <span class="visible-xs-inline">Connection</span>
-          </a>
-        </li>
-        <!--<li>
-          <a href="#" title="Shows red when voice input is active">
-            <i class="fa fa-microphone toggle-voice voice-input-indicator"></i> Red when voice is enabled
-          </a>
-        </li>-->
-        <li>
-          <a href="#userlist-modal" title="Show user list" role="button" data-toggle="modal">
-            <i class="glyphicon glyphicon-user icon-white"></i> <span class="visible-xs-inline">User List</span>
-          </a>
-        </li>
-        <li>
-          <a href="#settings-modal" title="Show settings" role="button" data-toggle="modal">
-            <i class="glyphicon glyphicon-cog icon-white"></i> <span class="visible-xs-inline">Settings</span>
-          </a>
-        </li>
-        <li>
-          <a href="#help-modal" title="Show help" role="button" data-toggle="modal">
-            <i class="fa fa-question-circle icon-white"></i> <span class="visible-xs-inline">Help</span>
-          </a>
-        </li>
-      </ul>
     </div>
   </div>
 </nav>
@@ -89,41 +75,59 @@
   <input class="form-control" type="text" id="msg_input" placeholder="Type here or start speaking. Press ENTER or say 'send' to send.">
 </div>
 
-<div class="modal fade" id="settings-modal">
+<div class="modal fade" id="sound-settings-modal">
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
         <h3>Settings</h3>
       </div>
-      <div class="modal-body">
-        <form class="form-horizontal" id="settings">
-          <div class="control-group">
-            <label class="control-label" for="sound_enabled">Enable sound</label>
-            <div class="controls">
-              <input type="checkbox" class="sound_enabled" checked="checked">
-            </div>
-          </div>
-          <div class="control-group">
-            <label class="control-label" for="voice_output_enabled">Enable voice output</label>
-            <div class="controls">
-              <input type="checkbox" class="voice_output_enabled">
-            </div>
-          </div>
-          <div class="control-group">
-            <label class="control-label" for="voice_input_enabled">Enable voice input</label>
-            <div class="controls">
-              <input type="checkbox" class="voice_input_enabled">
-            </div>
-          </div>
-        </form>
-      </div>
+      <div id="sound-settings-modal-body" class="modal-body"></div>
       <div class="modal-footer">
         <a href="#" class="btn btn-primary" data-dismiss="modal" aria-hidden="true">Close</a>
       </div>
     </div>
   </div>
 </div>
+
+<script type="text/html" id="sound-settings-modal-template">
+  <div class="row">
+    <div class="col-sm-6">
+      <div class="settings-block setting-voice-in <%= voice_in_class %>">
+        <h4>Voice Recognition</h4>
+        <span class="fa-stack fa-5x">
+          <i class="fa fa-microphone fa-stack-1x setting-icon"></i>
+          <% if (!voice_in_available) { %>
+            <i class="fa fa-ban fa-stack-2x setting-cross text-danger"></i>
+          <% } %>
+        </span>
+        <% if (voice_in_available) { %>
+          <div class="voice-in-available">Available</div>
+          <div class="voice-in-enabled"><% if (voice_in_enabled) { %>Enabled<% } else { %>Disabled<% } %></div>
+        <% } else { %>
+          <div class="voice-in-available">Unavailable</div>
+        <% } %>
+      </div>
+    </div>
+    <div class="col-sm-6">
+      <div class="settings-block setting-voice-out <%= voice_out_class %>">
+        <h4>Text to Speech</h4>
+        <span class="fa-stack fa-5x">
+          <i class="fa fa-volume-up fa-stack-1x setting-icon"></i>
+          <% if (!voice_out_available) { %>
+            <i class="fa fa-ban fa-stack-2x setting-cross text-danger"></i>
+          <% } %>
+        </span>
+        <% if (voice_out_available) { %>
+          <div class="voice-out-available">Available</div>
+          <div class="voice-out-enabled"><% if (voice_out_enabled) { %>Enabled<% } else { %>Disabled<% } %></div>
+        <% } else { %>
+          <div class="voice-out-available">Unavailable</div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</script>
 
 <div class="modal fade" id="userlist-modal">
   <div class="modal-dialog">
